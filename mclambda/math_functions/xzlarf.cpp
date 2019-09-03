@@ -1,32 +1,11 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: xzlarf.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
 #include "rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "xzlarf.h"
 
-// Function Definitions
-
-//
-// Arguments    : int m
-//                int n
-//                int iv0
-//                double tau
-//                double C[144]
-//                int ic0
-//                double work[12]
-// Return Type  : void
-//
-void b_xzlarf(int m, int n, int iv0, double tau, double C[144], int ic0, double
-              work[12])
+// --------------------------------------------------------------------------
+void b_xzlarf(int n1, int m, int n, int iv0, double tau, double C[], int ic0, double
+              work[])
 {
   int lastv;
   int lastc;
@@ -50,7 +29,7 @@ void b_xzlarf(int m, int n, int iv0, double tau, double C[144], int ic0, double
     lastc = n;
     exitg2 = false;
     while ((!exitg2) && (lastc > 0)) {
-      i = ic0 + (lastc - 1) * 12;
+      i = ic0 + (lastc - 1) * n1;
       ia = i;
       do {
         exitg1 = 0;
@@ -82,8 +61,8 @@ void b_xzlarf(int m, int n, int iv0, double tau, double C[144], int ic0, double
       }
 
       i = 0;
-      i6 = ic0 + 12 * (lastc - 1);
-      for (jy = ic0; jy <= i6; jy += 12) {
+      i6 = ic0 + n1 * (lastc - 1);
+      for (jy = ic0; jy <= i6; jy += n1) {
         ix = iv0;
         c = 0.0;
         j = (jy + lastv) - 1;
@@ -112,22 +91,15 @@ void b_xzlarf(int m, int n, int iv0, double tau, double C[144], int ic0, double
         }
 
         jy++;
-        i += 12;
+        i += n1;
       }
     }
   }
 }
+// --------------------------------------------------------------------------
 
-//
-// Arguments    : int n
-//                int iv0
-//                double tau
-//                double C[144]
-//                int ic0
-//                double work[12]
-// Return Type  : void
-//
-void xzlarf(int n, int iv0, double tau, double C[144], int ic0, double work[12])
+// --------------------------------------------------------------------------
+void xzlarf(int n1, int n, int iv0, double tau, double C[], int ic0, double work[])
 {
   int lastv;
   int lastc;
@@ -148,18 +120,18 @@ void xzlarf(int n, int iv0, double tau, double C[144], int ic0, double work[12])
       i--;
     }
 
-    lastc = 12;
+    lastc = n1;
     exitg2 = false;
     while ((!exitg2) && (lastc > 0)) {
       i = (ic0 + lastc) - 1;
       ia = i;
       do {
         exitg1 = 0;
-        if (ia <= i + (lastv - 1) * 12) {
+        if (ia <= i + (lastv - 1) * n1) {
           if (C[ia - 1] != 0.0) {
             exitg1 = 1;
           } else {
-            ia += 12;
+            ia += n1;
           }
         } else {
           lastc--;
@@ -183,8 +155,8 @@ void xzlarf(int n, int iv0, double tau, double C[144], int ic0, double work[12])
       }
 
       ix = iv0;
-      i5 = ic0 + 12 * (lastv - 1);
-      for (jy = ic0; jy <= i5; jy += 12) {
+      i5 = ic0 + n1 * (lastv - 1);
+      for (jy = ic0; jy <= i5; jy += n1) {
         i = 0;
         j = (jy + lastc) - 1;
         for (ia = jy; ia <= j; ia++) {
@@ -211,14 +183,9 @@ void xzlarf(int n, int iv0, double tau, double C[144], int ic0, double work[12])
         }
 
         jy++;
-        i += 12;
+        i += n1;
       }
     }
   }
 }
-
-//
-// File trailer for xzlarf.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

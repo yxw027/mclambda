@@ -21,7 +21,7 @@
 #include <string.h>
 #include "math_functions\rt_nonfinite.h"
 #include "math_functions\rtwtypes.h"
-#include "LAMBDA_types.h"
+#include "mclambda_types.h"
 
 // --------------------------------------------------------------------------
 //                          Function Declarations

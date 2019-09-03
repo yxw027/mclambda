@@ -20,8 +20,8 @@
 
 // Include Files
 #include "math_functions\rt_nonfinite.h"
-#include "LAMBDA.h"
-#include "LAMBDA_emxutil.h"
+#include "mclambda.h"
+#include "mclambda_emxutil.h"
 
 // --------------------------------------------------------------------------
 //                          Function Definitions

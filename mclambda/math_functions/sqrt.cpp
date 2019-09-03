@@ -1,26 +1,11 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: sqrt.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
 #include "rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "sqrt.h"
 #include "schur.h"
-#include "..\LAMBDA_rtwutil.h"
+#include "..\mclambda_rtwutil.h"
 
-// Function Definitions
-
-//
-// Arguments    : creal_T *x
-// Return Type  : void
-//
+// --------------------------------------------------------------------------
 void b_sqrt(creal_T *x)
 {
   double xr;
@@ -94,9 +79,4 @@ void b_sqrt(creal_T *x)
   x->re = absxi;
   x->im = xr;
 }
-
-//
-// File trailer for sqrt.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

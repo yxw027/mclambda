@@ -18,6 +18,7 @@
 //
 //  INPUTS:
 //
+//    n    : Number of float ambiguities
 //    Qahat: Variance-covariance matrix of ambiguities (original)
 //    ahat : Original ambiguities (optional)
 //
@@ -45,7 +46,8 @@ using namespace std;
 //                               decorrel
 // --------------------------------------------------------------------------
 //
-// Arguments    : const double Qahat -> Variance-covariance matrix of ambiguities
+// Arguments    : int n              -> Number of float ambiguities
+//                const double Qahat -> Variance-covariance matrix of ambiguities
 //                const double ahat  -> Vector of float ambiguities
 //                double Qzhat       -> Output Qzhat
 //                double Z           -> Output Z
@@ -57,22 +59,22 @@ using namespace std;
 // Return       : void
 //
 // --------------------------------------------------------------------------
-void decorrel(const double Qahat[144], const double ahat[12], double Qzhat[144],
-              double Z[144], double L[144], double D[12], double zhat[12],
-              double iZt[144])
+void decorrel(int n, const double Qahat[], const double ahat[], double Qzhat[],
+              double Z[], double L[], double D[], double zhat[],
+              double iZt[])
 {
   // ============================= VARIABLES ================================
-  creal_T unusedExpr[12];
+  creal_T unusedExpr[n];
   int i1;
   int sw;
   int ib;
   int i;
-  double b_Qahat[144];
+  double b_Qahat[n*n];
   double delta;
   int loop_ub;
   int br;
-  double L_data[11];
-  double b_iZt[12];
+  double L_data[n-1];
+  double b_iZt[n];
   int ar;
   double lambda;
   double eta;
@@ -88,56 +90,56 @@ void decorrel(const double Qahat[144], const double ahat[12], double Qzhat[144],
   // Tests on Inputs ahat and Qahat
   // - Is the Q-matrix symmetric?
   // - Is the Q-matrix positive-definite?
-  eig(Qahat, unusedExpr);
+  eig(n, Qahat, unusedExpr);
 
   // Initialization
-  memset(&iZt[0], 0, 144U * sizeof(double));
-  for (i1 = 0; i1 < 12; i1++) {
-    iZt[i1 + 12 * i1] = 1.0;
+  memset(&iZt[0], 0, n*n * sizeof(double));
+  for (i1 = 0; i1 < n; i1++) {
+    iZt[i1 + n * i1] = 1.0;
   }
   i1 = 10;
   sw = 1;
 
   // ========================== LDL Decomposition =============================
-  for (ib = 0; ib < 144; ib++) {
+  for (ib = 0; ib < n*n; ib++) {
     b_Qahat[ib] = Qahat[ib];
     L[ib] = 0.0;
   }
 
-  for (i = 0; i < 12; i++) {
-    D[11 - i] = b_Qahat[(12 * (11 - i) - i) + 11];
-    delta = std::sqrt(b_Qahat[(12 * (11 - i) - i) + 11]);
-    loop_ub = 11 - i;
+  for (i = 0; i < n; i++) {
+    D[n-1 - i] = b_Qahat[(n * (n-1 - i) - i) + n-1];
+    delta = std::sqrt(b_Qahat[(n * (n-1 - i) - i) + n-1]);
+    loop_ub = n-1 - i;
     for (ib = 0; ib <= loop_ub; ib++) {
-      L[(12 * ib - i) + 11] = b_Qahat[(12 * ib - i) + 11] / delta;
+      L[(n * ib - i) + n-1] = b_Qahat[(n * ib - i) + n-1] / delta;
     }
 
     for (br = 0; br <= 10 - i; br++) {
       for (ib = 0; ib <= br; ib++) {
-        L_data[ib] = b_Qahat[br + 12 * ib] - L[(12 * ib - i) + 11] * L[(12 * br
-          - i) + 11];
+        L_data[ib] = b_Qahat[br + n * ib] - L[(n * ib - i) + n-1] * L[(n * br
+          - i) + n-1];
       }
 
       loop_ub = br + 1;
       for (ib = 0; ib < loop_ub; ib++) {
-        b_Qahat[br + 12 * ib] = L_data[ib];
+        b_Qahat[br + n * ib] = L_data[ib];
       }
     }
 
-    loop_ub = 12 - i;
+    loop_ub = n - i;
     for (ib = 0; ib < loop_ub; ib++) {
-      b_iZt[ib] = L[(12 * ib - i) + 11] / L[(12 * (11 - i) - i) + 11];
+      b_iZt[ib] = L[(n * ib - i) + n-1] / L[(n * (n-1 - i) - i) + n-1];
     }
 
-    loop_ub = 12 - i;
+    loop_ub = n - i;
     for (ib = 0; ib < loop_ub; ib++) {
-      L[(12 * ib - i) + 11] = b_iZt[ib];
+      L[(n * ib - i) + n-1] = b_iZt[ib];
     }
   }
 
   // The actual decorrelation procedure
   while (sw != 0) {
-    i = 11;
+    i = n-1;
     // Loop for column from n to 1
     sw = 0;
     while ((!(sw != 0)) && (i + 1 > 1)) {
@@ -146,33 +148,33 @@ void decorrel(const double Qahat[144], const double ahat[12], double Qzhat[144],
       if (i + 1 <= i1 + 1) {
         for (br = 0; br <= 10 - i; br++) {
           ar = (i + br) + 1;
-          delta = rt_roundd_snf(L[ar + 12 * i]);
+          delta = rt_roundd_snf(L[ar + n * i]);
           if (delta != 0.0) {
             // If mu not equal to 0
             loop_ub = -ar;
-            for (ib = 0; ib <= loop_ub + 11; ib++) {
-              L_data[ib] = L[(ar + ib) + 12 * i] - delta * L[(ar + ib) + 12 * ar];
+            for (ib = 0; ib <= loop_ub + n-1; ib++) {
+              L_data[ib] = L[(ar + ib) + n * i] - delta * L[(ar + ib) + n * ar];
             }
 
-            loop_ub = 12 - ar;
+            loop_ub = n - ar;
             for (ib = 0; ib < loop_ub; ib++) {
-              L[(ar + ib) + 12 * i] = L_data[ib];
+              L[(ar + ib) + n * i] = L_data[ib];
             }
 
-            for (ib = 0; ib < 12; ib++) {
-              b_iZt[ib] = iZt[ib + 12 * ar] + delta * iZt[ib + 12 * i];
+            for (ib = 0; ib < n; ib++) {
+              b_iZt[ib] = iZt[ib + n * ar] + delta * iZt[ib + n * i];
             }
 
-            memcpy(&iZt[ar * 12], &b_iZt[0], 12U * sizeof(double));
+            memcpy(&iZt[ar * n], &b_iZt[0], n * sizeof(double));
 
             // iZt is inv(Zt) matrix
           }
         }
       }
 
-      delta = D[i] + L[(i + 12 * i) + 1] * L[(i + 12 * i) + 1] * D[i + 1];
+      delta = D[i] + L[(i + n * i) + 1] * L[(i + n * i) + 1] * D[i + 1];
       if (delta < D[i + 1]) {
-        lambda = D[i + 1] * L[(i + 12 * i) + 1] / delta;
+        lambda = D[i + 1] * L[(i + n * i) + 1] / delta;
         eta = D[i] / delta;
         D[i] = eta * D[i + 1];
         D[i + 1] = delta;
@@ -182,13 +184,13 @@ void decorrel(const double Qahat[144], const double ahat[12], double Qzhat[144],
           loop_ub = i;
         }
 
-        a[0] = -L[(i + 12 * i) + 1];
+        a[0] = -L[(i + n * i) + 1];
         a[2] = 1.0;
         a[1] = eta;
         a[3] = lambda;
         for (ib = 0; ib < loop_ub; ib++) {
           for (ar = 0; ar < 2; ar++) {
-            b_data[ar + (ib << 1)] = L[(ar + i) + 12 * ib];
+            b_data[ar + (ib << 1)] = L[(ar + i) + n * ib];
           }
         }
 
@@ -229,20 +231,20 @@ void decorrel(const double Qahat[144], const double ahat[12], double Qzhat[144],
         loop_ub = (signed char)loop_ub;
         for (ib = 0; ib < loop_ub; ib++) {
           for (ar = 0; ar < 2; ar++) {
-            L[(ar + i) + 12 * ib] = C_data[ar + (ib << 1)];
+            L[(ar + i) + n * ib] = C_data[ar + (ib << 1)];
           }
         }
 
-        L[(i + 12 * i) + 1] = lambda;
+        L[(i + n * i) + 1] = lambda;
 
         // Swap rows i and i+1
-        if (i + 3 > 12) {
+        if (i + 3 > n) {
           ib = -2;
           ar = 1;
           i1 = -2;
         } else {
           ib = i;
-          ar = 13;
+          ar = n+1;
           i1 = i;
         }
 
@@ -250,21 +252,21 @@ void decorrel(const double Qahat[144], const double ahat[12], double Qzhat[144],
         loop_ub = ar - ib;
         for (ar = 0; ar < 2; ar++) {
           for (br = 0; br <= loop_ub - 4; br++) {
-            b_L_data[br + sw * ar] = L[((ib + br) + 12 * ((i - ar) + 1)) + 2];
+            b_L_data[br + sw * ar] = L[((ib + br) + n * ((i - ar) + 1)) + 2];
           }
         }
 
         for (ib = 0; ib < 2; ib++) {
           for (ar = 0; ar < sw; ar++) {
-            L[((i1 + ar) + 12 * (ib + i)) + 2] = b_L_data[ar + sw * ib];
+            L[((i1 + ar) + n * (ib + i)) + 2] = b_L_data[ar + sw * ib];
           }
 
-          memcpy(&c_iZt[ib * 12], &iZt[(ib * -12 + i * 12) + 12], 12U * sizeof
+          memcpy(&c_iZt[ib * n], &iZt[(ib * -n + i * n) + n], n * sizeof
                  (double));
         }
 
         for (ib = 0; ib < 2; ib++) {
-          memcpy(&iZt[ib * 12 + i * 12], &c_iZt[ib * 12], 12U * sizeof(double));
+          memcpy(&iZt[ib * n + i * n], &c_iZt[ib * n], n * sizeof(double));
         }
 
         i1 = i;
@@ -275,33 +277,33 @@ void decorrel(const double Qahat[144], const double ahat[12], double Qzhat[144],
 
   // Return the transformed Q-matrix and the transformation-matrix
   // Return the decorrelated ambiguities, if they were supplied
-  for (ib = 0; ib < 12; ib++) {
-    for (ar = 0; ar < 12; ar++) {
-      b_Qahat[ar + 12 * ib] = iZt[ib + 12 * ar];
+  for (ib = 0; ib < n; ib++) {
+    for (ar = 0; ar < n; ar++) {
+      b_Qahat[ar + n * ib] = iZt[ib + n * ar];
     }
   }
 
-  inv(b_Qahat, Z);
-  for (i1 = 0; i1 < 144; i1++) {
+  inv(n, b_Qahat, Z);
+  for (i1 = 0; i1 < n*n; i1++) {
     Z[i1] = rt_roundd_snf(Z[i1]);
   }
 
-  for (ib = 0; ib < 12; ib++) {
-    for (ar = 0; ar < 12; ar++) {
-      b_Qahat[ib + 12 * ar] = 0.0;
-      for (i1 = 0; i1 < 12; i1++) {
-        b_Qahat[ib + 12 * ar] += Z[i1 + 12 * ib] * Qahat[i1 + 12 * ar];
+  for (ib = 0; ib < n; ib++) {
+    for (ar = 0; ar < n; ar++) {
+      b_Qahat[ib + n * ar] = 0.0;
+      for (i1 = 0; i1 < n; i1++) {
+        b_Qahat[ib + n * ar] += Z[i1 + n * ib] * Qahat[i1 + n * ar];
       }
     }
 
     zhat[ib] = 0.0;
-    for (ar = 0; ar < 12; ar++) {
-      Qzhat[ib + 12 * ar] = 0.0;
-      for (i1 = 0; i1 < 12; i1++) {
-        Qzhat[ib + 12 * ar] += b_Qahat[ib + 12 * i1] * Z[i1 + 12 * ar];
+    for (ar = 0; ar < n; ar++) {
+      Qzhat[ib + n * ar] = 0.0;
+      for (i1 = 0; i1 < n; i1++) {
+        Qzhat[ib + n * ar] += b_Qahat[ib + n * i1] * Z[i1 + n * ar];
       }
 
-      zhat[ib] += Z[ar + 12 * ib] * ahat[ar];
+      zhat[ib] += Z[ar + n * ib] * ahat[ar];
     }
   }
 }

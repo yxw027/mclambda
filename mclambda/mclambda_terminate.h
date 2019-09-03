@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-//                     MC-LAMBDA INITIALIZE HEADER FILE
+//                     MC-LAMBDA TERMINATE HEADER FILE
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------
 //  Release date  : AUG-2019
@@ -10,8 +10,8 @@
 //  Hochschule Karlsruhe - Technik und Wirtschaft University of Applied Sciences
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------
-#ifndef LAMBDA_INITIALIZE_H
-#define LAMBDA_INITIALIZE_H
+#ifndef LAMBDA_TERMINATE_H
+#define LAMBDA_TERMINATE_H
 
 // Include Files
 #include <cmath>
@@ -22,11 +22,11 @@
 #include <string.h>
 #include "math_functions\rt_nonfinite.h"
 #include "math_functions\rtwtypes.h"
-#include "LAMBDA_types.h"
+#include "mclambda_types.h"
 
 // --------------------------------------------------------------------------
 //                          Function Declarations
 // --------------------------------------------------------------------------
-extern void LAMBDA_initialize();
+extern void mclambda_terminate();
 
 #endif

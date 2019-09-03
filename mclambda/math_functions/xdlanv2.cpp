@@ -1,35 +1,11 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: xdlanv2.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
 #include "rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "xdlanv2.h"
 #include "schur.h"
-#include "..\LAMBDA_rtwutil.h"
+#include "..\mclambda_rtwutil.h"
 
-// Function Definitions
-
-//
-// Arguments    : double *a
-//                double *b
-//                double *c
-//                double *d
-//                double *rt1r
-//                double *rt1i
-//                double *rt2r
-//                double *rt2i
-//                double *cs
-//                double *sn
-// Return Type  : void
-//
+// --------------------------------------------------------------------------
 void xdlanv2(double *a, double *b, double *c, double *d, double *rt1r, double
              *rt1i, double *rt2r, double *rt2i, double *cs, double *sn)
 {
@@ -179,9 +155,4 @@ void xdlanv2(double *a, double *b, double *c, double *d, double *rt1r, double
     *rt2i = -*rt1i;
   }
 }
-
-//
-// File trailer for xdlanv2.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

@@ -21,13 +21,12 @@
 #include <string.h>
 #include "..\math_functions\rt_nonfinite.h"
 #include "..\math_functions\rtwtypes.h"
-#include "..\LAMBDA_types.h"
+#include "..\mclambda_types.h"
 
 // --------------------------------------------------------------------------
 //                          Function Declarations
 // --------------------------------------------------------------------------
-extern double chistart(const double D[12], const double L[144], const double
-  ahat[12], double ncands);
+double chistart(int n, const double D[], const double L[], const double ahat[], double ncands);
 
 #endif
 

@@ -1,26 +1,8 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: interp1q.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
-/*#include "rt_nonfinite.h"
-#include "LAMBDA.h"*/
+#include "rt_nonfinite.h"
 #include "interp1q.h"
 
-// Function Definitions
-
-//
-// Arguments    : const double x[31]
-//                const double y[31]
-//                double xi
-// Return Type  : double
-//
+// --------------------------------------------------------------------------
 double interp1q(const double x[31], const double y[31], double xi)
 {
   double yi;
@@ -54,9 +36,4 @@ double interp1q(const double x[31], const double y[31], double xi)
 
   return yi;
 }
-
-//
-// File trailer for interp1q.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

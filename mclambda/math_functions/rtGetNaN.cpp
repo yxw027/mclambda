@@ -1,17 +1,4 @@
-/*
- * Academic License - for use in teaching, academic research, and meeting
- * course requirements at degree granting institutions only.  Not for
- * government, commercial, or other organizational use.
- * File: rtGetNaN.cpp
- *
- * MATLAB Coder version            : 3.3
- * C/C++ source code generated on  : 08-Aug-2019 14:38:13
- */
-
-/*
- * Abstract:
- *       MATLAB for code generation function to initialize non-finite, NaN
- */
+// Include Files
 #include "rtGetNaN.h"
 #define NumBitsPerChar                 8U
 
@@ -94,9 +81,3 @@ real32_T rtGetNaNF(void)
 
   return nanF.wordL.wordLreal;
 }
-
-/*
- * File trailer for rtGetNaN.cpp
- *
- * [EOF]
- */

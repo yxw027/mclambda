@@ -1,19 +1,10 @@
-/*
- * Academic License - for use in teaching, academic research, and meeting
- * course requirements at degree granting institutions only.  Not for
- * government, commercial, or other organizational use.
- * File: rt_nonfinite.h
- *
- * MATLAB Coder version            : 3.3
- * C/C++ source code generated on  : 08-Aug-2019 14:38:13
- */
-
 #ifndef RT_NONFINITE_H
 #define RT_NONFINITE_H
 #if defined(_MSC_VER) && (_MSC_VER <= 1200)
 #include <float.h>
 #endif
 
+// Include Files
 #include <stddef.h>
 #include "rtwtypes.h"
 
@@ -50,9 +41,3 @@ typedef struct {
 } IEEESingle;
 
 #endif
-
-/*
- * File trailer for rt_nonfinite.h
- *
- * [EOF]
- */

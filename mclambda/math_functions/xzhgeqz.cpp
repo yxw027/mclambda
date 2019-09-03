@@ -1,35 +1,15 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: xzhgeqz.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
 #include "rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "xzhgeqz.h"
 #include "xzlartg.cpp"
 #include "sqrt.cpp"
 
-// Function Definitions
-
-//
-// Arguments    : const creal_T A[144]
-//                int ilo
-//                int ihi
-//                int *info
-//                creal_T alpha1[12]
-//                creal_T beta1[12]
-// Return Type  : void
-//
-void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
-             [12], creal_T beta1[12])
+// --------------------------------------------------------------------------
+void xzhgeqz(int n, const creal_T A[], int ilo, int ihi, int *info, creal_T alpha1
+             [], creal_T beta1[])
 {
-  creal_T b_A[144];
+  creal_T b_A[n*n];
   int i;
   double eshift_re;
   double eshift_im;
@@ -66,9 +46,9 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
   double ad22_re;
   double ad22_im;
   double t1_im;
-  memcpy(&b_A[0], &A[0], 144U * sizeof(creal_T));
+  memcpy(&b_A[0], &A[0], n*n * sizeof(creal_T));
   *info = 0;
-  for (i = 0; i < 12; i++) {
+  for (i = 0; i < n; i++) {
     alpha1[i].re = 0.0;
     alpha1[i].im = 0.0;
     beta1[i].re = 1.0;
@@ -91,8 +71,8 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
       }
 
       for (i = ilo; i <= jp1; i++) {
-        reAij = A[(i + 12 * (j - 1)) - 1].re;
-        imAij = A[(i + 12 * (j - 1)) - 1].im;
+        reAij = A[(i + n * (j - 1)) - 1].re;
+        imAij = A[(i + n * (j - 1)) - 1].im;
         if (reAij != 0.0) {
           anorm = std::abs(reAij);
           if (firstNonZero) {
@@ -143,8 +123,8 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
 
   ascale = 1.0 / reAij;
   failed = true;
-  for (j = ihi; j + 1 < 13; j++) {
-    alpha1[j] = A[j + 12 * j];
+  for (j = ihi; j + 1 < n+1; j++) {
+    alpha1[j] = A[j + n * j];
   }
 
   guard1 = false;
@@ -166,10 +146,10 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
       if (jiter <= 30 * ((ihi - ilo) + 1)) {
         if (ilast + 1 == ilo) {
           goto60 = true;
-        } else if (std::abs(b_A[ilast + 12 * ilastm1].re) + std::abs(b_A[ilast +
-                    12 * ilastm1].im) <= b_atol) {
-          b_A[ilast + 12 * ilastm1].re = 0.0;
-          b_A[ilast + 12 * ilastm1].im = 0.0;
+        } else if (std::abs(b_A[ilast + n * ilastm1].re) + std::abs(b_A[ilast +
+                    n * ilastm1].im) <= b_atol) {
+          b_A[ilast + n * ilastm1].re = 0.0;
+          b_A[ilast + n * ilastm1].im = 0.0;
           goto60 = true;
         } else {
           j = ilastm1;
@@ -177,10 +157,10 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
           while ((!exitg2) && (j + 1 >= ilo)) {
             if (j + 1 == ilo) {
               firstNonZero = true;
-            } else if (std::abs(b_A[j + 12 * (j - 1)].re) + std::abs(b_A[j + 12 *
+            } else if (std::abs(b_A[j + n * (j - 1)].re) + std::abs(b_A[j + n *
                         (j - 1)].im) <= b_atol) {
-              b_A[j + 12 * (j - 1)].re = 0.0;
-              b_A[j + 12 * (j - 1)].im = 0.0;
+              b_A[j + n * (j - 1)].re = 0.0;
+              b_A[j + n * (j - 1)].im = 0.0;
               firstNonZero = true;
             } else {
               firstNonZero = false;
@@ -203,7 +183,7 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
         }
 
         if (!firstNonZero) {
-          for (i = 0; i < 12; i++) {
+          for (i = 0; i < n; i++) {
             alpha1[i].re = rtNaN;
             alpha1[i].im = 0.0;
             beta1[i].re = rtNaN;
@@ -214,7 +194,7 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
           exitg1 = 1;
         } else if (goto60) {
           goto60 = false;
-          alpha1[ilast] = b_A[ilast + 12 * ilast];
+          alpha1[ilast] = b_A[ilast + n * ilast];
           ilast = ilastm1;
           ilastm1--;
           if (ilast + 1 < ilo) {
@@ -238,8 +218,8 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
             iiter++;
             ifrstm = ifirst;
             if (iiter - iiter / 10 * 10 != 0) {
-              anorm = ascale * b_A[ilastm1 + 12 * ilastm1].re;
-              reAij = ascale * b_A[ilastm1 + 12 * ilastm1].im;
+              anorm = ascale * b_A[ilastm1 + n * ilastm1].re;
+              reAij = ascale * b_A[ilastm1 + n * ilastm1].im;
               if (reAij == 0.0) {
                 shift.re = anorm / 0.28867513459481292;
                 shift.im = 0.0;
@@ -251,8 +231,8 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
                 shift.im = reAij / 0.28867513459481292;
               }
 
-              anorm = ascale * b_A[ilast + 12 * ilast].re;
-              reAij = ascale * b_A[ilast + 12 * ilast].im;
+              anorm = ascale * b_A[ilast + n * ilast].re;
+              reAij = ascale * b_A[ilast + n * ilast].im;
               if (reAij == 0.0) {
                 ad22_re = anorm / 0.28867513459481292;
                 ad22_im = 0.0;
@@ -266,8 +246,8 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
 
               temp2 = 0.5 * (shift.re + ad22_re);
               t1_im = 0.5 * (shift.im + ad22_im);
-              anorm = ascale * b_A[ilastm1 + 12 * ilast].re;
-              reAij = ascale * b_A[ilastm1 + 12 * ilast].im;
+              anorm = ascale * b_A[ilastm1 + n * ilast].re;
+              reAij = ascale * b_A[ilastm1 + n * ilast].im;
               if (reAij == 0.0) {
                 sumsq = anorm / 0.28867513459481292;
                 imAij = 0.0;
@@ -279,8 +259,8 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
                 imAij = reAij / 0.28867513459481292;
               }
 
-              anorm = ascale * b_A[ilast + 12 * ilastm1].re;
-              reAij = ascale * b_A[ilast + 12 * ilastm1].im;
+              anorm = ascale * b_A[ilast + n * ilastm1].re;
+              reAij = ascale * b_A[ilast + n * ilastm1].im;
               if (reAij == 0.0) {
                 scale = anorm / 0.28867513459481292;
                 anorm = 0.0;
@@ -307,8 +287,8 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
                 shift.im = t1_im - shift.im;
               }
             } else {
-              anorm = ascale * b_A[ilast + 12 * ilastm1].re;
-              reAij = ascale * b_A[ilast + 12 * ilastm1].im;
+              anorm = ascale * b_A[ilast + n * ilastm1].re;
+              reAij = ascale * b_A[ilast + n * ilastm1].im;
               if (reAij == 0.0) {
                 sumsq = anorm / 0.28867513459481292;
                 imAij = 0.0;
@@ -331,13 +311,13 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
             exitg2 = false;
             while ((!exitg2) && (j + 1 > ifirst)) {
               istart = j + 1;
-              ctemp.re = ascale * b_A[j + 12 * j].re - shift.re *
+              ctemp.re = ascale * b_A[j + n * j].re - shift.re *
                 0.28867513459481292;
-              ctemp.im = ascale * b_A[j + 12 * j].im - shift.im *
+              ctemp.im = ascale * b_A[j + n * j].im - shift.im *
                 0.28867513459481292;
               anorm = std::abs(ctemp.re) + std::abs(ctemp.im);
-              temp2 = ascale * (std::abs(b_A[jp1 + 12 * j].re) + std::abs
-                                (b_A[jp1 + 12 * j].im));
+              temp2 = ascale * (std::abs(b_A[jp1 + n * j].re) + std::abs
+                                (b_A[jp1 + n * j].im));
               reAij = anorm;
               if (temp2 > anorm) {
                 reAij = temp2;
@@ -348,7 +328,7 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
                 temp2 /= reAij;
               }
 
-              if ((std::abs(b_A[j + 12 * (j - 1)].re) + std::abs(b_A[j + 12 * (j
+              if ((std::abs(b_A[j + n * (j - 1)].re) + std::abs(b_A[j + n * (j
                      - 1)].im)) * temp2 <= anorm * b_atol) {
                 goto90 = true;
                 exitg2 = true;
@@ -360,9 +340,9 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
 
             if (!goto90) {
               istart = ifirst;
-              ctemp.re = ascale * b_A[(ifirst + 12 * (ifirst - 1)) - 1].re -
+              ctemp.re = ascale * b_A[(ifirst + n * (ifirst - 1)) - 1].re -
                 shift.re * 0.28867513459481292;
-              ctemp.im = ascale * b_A[(ifirst + 12 * (ifirst - 1)) - 1].im -
+              ctemp.im = ascale * b_A[(ifirst + n * (ifirst - 1)) - 1].im -
                 shift.im * 0.28867513459481292;
               goto90 = true;
             }
@@ -370,32 +350,32 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
 
           if (goto90) {
             goto90 = false;
-            b_ascale.re = ascale * b_A[istart + 12 * (istart - 1)].re;
-            b_ascale.im = ascale * b_A[istart + 12 * (istart - 1)].im;
+            b_ascale.re = ascale * b_A[istart + n * (istart - 1)].re;
+            b_ascale.im = ascale * b_A[istart + n * (istart - 1)].im;
             b_xzlartg(ctemp, b_ascale, &anorm, &shift);
             j = istart;
             jp1 = istart - 2;
             while (j < ilast + 1) {
               if (j > istart) {
-                xzlartg(b_A[(j + 12 * jp1) - 1], b_A[j + 12 * jp1], &anorm,
-                        &shift, &b_A[(j + 12 * jp1) - 1]);
-                b_A[j + 12 * jp1].re = 0.0;
-                b_A[j + 12 * jp1].im = 0.0;
+                xzlartg(b_A[(j + n * jp1) - 1], b_A[j + n * jp1], &anorm,
+                        &shift, &b_A[(j + n * jp1) - 1]);
+                b_A[j + n * jp1].re = 0.0;
+                b_A[j + n * jp1].im = 0.0;
               }
 
               for (jp1 = j - 1; jp1 + 1 <= ilastm; jp1++) {
-                ad22_re = anorm * b_A[(j + 12 * jp1) - 1].re + (shift.re * b_A[j
-                  + 12 * jp1].re - shift.im * b_A[j + 12 * jp1].im);
-                ad22_im = anorm * b_A[(j + 12 * jp1) - 1].im + (shift.re * b_A[j
-                  + 12 * jp1].im + shift.im * b_A[j + 12 * jp1].re);
-                reAij = b_A[(j + 12 * jp1) - 1].re;
-                b_A[j + 12 * jp1].re = anorm * b_A[j + 12 * jp1].re - (shift.re *
-                  b_A[(j + 12 * jp1) - 1].re + shift.im * b_A[(j + 12 * jp1) - 1]
+                ad22_re = anorm * b_A[(j + n * jp1) - 1].re + (shift.re * b_A[j
+                  + n * jp1].re - shift.im * b_A[j + n * jp1].im);
+                ad22_im = anorm * b_A[(j + n * jp1) - 1].im + (shift.re * b_A[j
+                  + n * jp1].im + shift.im * b_A[j + n * jp1].re);
+                reAij = b_A[(j + n * jp1) - 1].re;
+                b_A[j + n * jp1].re = anorm * b_A[j + n * jp1].re - (shift.re *
+                  b_A[(j + n * jp1) - 1].re + shift.im * b_A[(j + n * jp1) - 1]
                   .im);
-                b_A[j + 12 * jp1].im = anorm * b_A[j + 12 * jp1].im - (shift.re *
-                  b_A[(j + 12 * jp1) - 1].im - shift.im * reAij);
-                b_A[(j + 12 * jp1) - 1].re = ad22_re;
-                b_A[(j + 12 * jp1) - 1].im = ad22_im;
+                b_A[j + n * jp1].im = anorm * b_A[j + n * jp1].im - (shift.re *
+                  b_A[(j + n * jp1) - 1].im - shift.im * reAij);
+                b_A[(j + n * jp1) - 1].re = ad22_re;
+                b_A[(j + n * jp1) - 1].im = ad22_im;
               }
 
               shift.re = -shift.re;
@@ -406,17 +386,17 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
               }
 
               for (i = ifrstm - 1; i + 1 <= jp1 + 2; i++) {
-                ad22_re = anorm * b_A[i + 12 * j].re + (shift.re * b_A[i + 12 *
-                  (j - 1)].re - shift.im * b_A[i + 12 * (j - 1)].im);
-                ad22_im = anorm * b_A[i + 12 * j].im + (shift.re * b_A[i + 12 *
-                  (j - 1)].im + shift.im * b_A[i + 12 * (j - 1)].re);
-                reAij = b_A[i + 12 * j].re;
-                b_A[i + 12 * (j - 1)].re = anorm * b_A[i + 12 * (j - 1)].re -
-                  (shift.re * b_A[i + 12 * j].re + shift.im * b_A[i + 12 * j].im);
-                b_A[i + 12 * (j - 1)].im = anorm * b_A[i + 12 * (j - 1)].im -
-                  (shift.re * b_A[i + 12 * j].im - shift.im * reAij);
-                b_A[i + 12 * j].re = ad22_re;
-                b_A[i + 12 * j].im = ad22_im;
+                ad22_re = anorm * b_A[i + n * j].re + (shift.re * b_A[i + n *
+                  (j - 1)].re - shift.im * b_A[i + n * (j - 1)].im);
+                ad22_im = anorm * b_A[i + n * j].im + (shift.re * b_A[i + n *
+                  (j - 1)].im + shift.im * b_A[i + n * (j - 1)].re);
+                reAij = b_A[i + n * j].re;
+                b_A[i + n * (j - 1)].re = anorm * b_A[i + n * (j - 1)].re -
+                  (shift.re * b_A[i + n * j].re + shift.im * b_A[i + n * j].im);
+                b_A[i + n * (j - 1)].im = anorm * b_A[i + n * (j - 1)].im -
+                  (shift.re * b_A[i + n * j].im - shift.im * reAij);
+                b_A[i + n * j].re = ad22_re;
+                b_A[i + n * j].im = ad22_im;
               }
 
               jp1 = j - 1;
@@ -451,13 +431,8 @@ void xzhgeqz(const creal_T A[144], int ilo, int ihi, int *info, creal_T alpha1
 
   if (guard1) {
     for (j = 0; j + 1 < ilo; j++) {
-      alpha1[j] = b_A[j + 12 * j];
+      alpha1[j] = b_A[j + n * j];
     }
   }
 }
-
-//
-// File trailer for xzhgeqz.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 //  covariance matrix. Otherwise an approximation is used.
 //
 //  INPUTS:
-//
+//     n     : Number of float ambiguities
 //     L,D   : LtDL-decomposition of the variance-covariance matrix of
 //             the float ambiguities (preferably decorrelated)
 //     ahat  : float ambiguites (preferably decorrelated)
@@ -36,13 +36,13 @@
 
 // Include Files
 #include "..\math_functions\rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "chistart.h"
-#include "..\LAMBDA_emxutil.h"
+#include "..\mclambda_emxutil.h"
 #include "..\math_functions\sort1.h"
 #include "..\math_functions\xzgetrf.h"
 #include "..\math_functions\xtrsm.h"
-#include "..\LAMBDA_rtwutil.h"
+#include "..\mclambda_rtwutil.h"
 
 using namespace std;
 
@@ -54,7 +54,8 @@ using namespace std;
 //                               chistart
 // --------------------------------------------------------------------------
 //
-// Arguments    : const double D    -> Matrix D of LtDL-decomposition
+// Arguments    : int n             -> Number of float ambiguities
+//                const double D    -> Matrix D of LtDL-decomposition
 //                const double L    -> Matrix L of LtDL-decomposition
 //                const double ahat -> Vector of float ambiguities
 //                double ncands     -> Requested number of candidates
@@ -62,30 +63,29 @@ using namespace std;
 // Return       : double Chi2       -> Size of the search ellipsoid
 //
 // --------------------------------------------------------------------------
-double chistart(const double D[12], const double L[144], const double ahat[12],
+double chistart(int n, const double D[], const double L[], const double ahat[],
                 double ncands)
 {
   // ============================= VARIABLES ================================
   double Chi2;
   emxArray_real_T *Chi;
   int jBcol;
-  double iQ[144];
-  double afloat[12];
+  double iQ[n*n];
+  double afloat[n];
   int j;
-  double A[144];
-  int ipiv[12];
+  double A[n*n];
+  int ipiv[n];
   int jp;
   int kBcol;
   int k;
   double dw;
   int i;
-  double afixed[12];
+  double afixed[n];
   double x;
-  double b_ahat[12];
+  double b_ahat[n];
 
   // ============================ START PROGRAM ===============================
   // Computation depends on the number of candidates to be computed
-  int n = sizeof(ahat);
   if (ncands <= n + 1) {
     emxInit_real_T(&Chi, 2);
     // Computation based on the bootstrapping estimator
@@ -94,73 +94,73 @@ double chistart(const double D[12], const double L[144], const double ahat[12],
     Chi->size[1] = 1;
     emxEnsureCapacity((emxArray__common *)Chi, jBcol, sizeof(double));
     Chi->data[0] = 0.0;
-    for (jBcol = 0; jBcol < 12; jBcol++) {
+    for (jBcol = 0; jBcol < n; jBcol++) {
       afloat[jBcol] = 1.0 / D[jBcol];
     }
 
-    memset(&iQ[0], 0, 144U * sizeof(double));
-    for (j = 0; j < 12; j++) {
-      iQ[j + 12 * j] = afloat[j];
+    memset(&iQ[0], 0, n*n * sizeof(double));
+    for (j = 0; j < n; j++) {
+      iQ[j + n * j] = afloat[j];
     }
 
-    memcpy(&A[0], &L[0], 144U * sizeof(double));
-    xzgetrf(A, ipiv, &jp);
-    for (kBcol = 0; kBcol < 11; kBcol++) {
+    memcpy(&A[0], &L[0], n*n * sizeof(double));
+    xzgetrf(n, A, ipiv, &jp);
+    for (kBcol = 0; kBcol < n-1; kBcol++) {
       if (ipiv[kBcol] != kBcol + 1) {
         jp = ipiv[kBcol] - 1;
-        for (jBcol = 0; jBcol < 12; jBcol++) {
-          dw = iQ[kBcol + 12 * jBcol];
-          iQ[kBcol + 12 * jBcol] = iQ[jp + 12 * jBcol];
-          iQ[jp + 12 * jBcol] = dw;
+        for (jBcol = 0; jBcol < n; jBcol++) {
+          dw = iQ[kBcol + n * jBcol];
+          iQ[kBcol + n * jBcol] = iQ[jp + n * jBcol];
+          iQ[jp + n * jBcol] = dw;
         }
       }
     }
 
-    for (j = 0; j < 12; j++) {
-      jBcol = 12 * j;
-      for (k = 0; k < 12; k++) {
-        jp = 12 * k;
+    for (j = 0; j < n; j++) {
+      jBcol = n * j;
+      for (k = 0; k < n; k++) {
+        jp = n * k;
         if (iQ[k + jBcol] != 0.0) {
-          for (i = k + 1; i + 1 < 13; i++) {
+          for (i = k + 1; i + 1 < n+1; i++) {
             iQ[i + jBcol] -= iQ[k + jBcol] * A[i + jp];
           }
         }
       }
     }
 
-    xtrsm(A, iQ);
-    for (jBcol = 0; jBcol < 12; jBcol++) {
-      for (kBcol = 0; kBcol < 12; kBcol++) {
-        A[kBcol + 12 * jBcol] = L[jBcol + 12 * kBcol];
+    xtrsm(n, A, iQ);
+    for (jBcol = 0; jBcol < n; jBcol++) {
+      for (kBcol = 0; kBcol < n; kBcol++) {
+        A[kBcol + n * jBcol] = L[jBcol + n * kBcol];
       }
     }
 
-    xzgetrf(A, ipiv, &jp);
-    for (j = 0; j < 12; j++) {
-      jBcol = 12 * j;
-      jp = 12 * j;
+    xzgetrf(n, A, ipiv, &jp);
+    for (j = 0; j < n; j++) {
+      jBcol = n * j;
+      jp = n * j;
       for (k = 1; k <= j; k++) {
-        kBcol = 12 * (k - 1);
+        kBcol = n * (k - 1);
         if (A[(k + jp) - 1] != 0.0) {
-          for (i = 0; i < 12; i++) {
+          for (i = 0; i < n; i++) {
             iQ[i + jBcol] -= A[(k + jp) - 1] * iQ[i + kBcol];
           }
         }
       }
 
       dw = 1.0 / A[j + jp];
-      for (i = 0; i < 12; i++) {
+      for (i = 0; i < n; i++) {
         iQ[i + jBcol] *= dw;
       }
     }
 
-    for (j = 11; j >= 0; j += -1) {
-      jBcol = 12 * j;
-      jp = 12 * j - 1;
-      for (k = j + 2; k < 13; k++) {
-        kBcol = 12 * (k - 1);
+    for (j = n-1; j >= 0; j += -1) {
+      jBcol = n * j;
+      jp = n * j - 1;
+      for (k = j + 2; k < n+1; k++) {
+        kBcol = n * (k - 1);
         if (A[k + jp] != 0.0) {
-          for (i = 0; i < 12; i++) {
+          for (i = 0; i < n; i++) {
             iQ[i + jBcol] -= A[k + jp] * iQ[i + kBcol];
           }
         }
@@ -170,30 +170,30 @@ double chistart(const double D[12], const double L[144], const double ahat[12],
     for (jBcol = 10; jBcol >= 0; jBcol += -1) {
       if (ipiv[jBcol] != jBcol + 1) {
         jp = ipiv[jBcol] - 1;
-        for (kBcol = 0; kBcol < 12; kBcol++) {
-          dw = iQ[kBcol + 12 * jBcol];
-          iQ[kBcol + 12 * jBcol] = iQ[kBcol + 12 * jp];
-          iQ[kBcol + 12 * jp] = dw;
+        for (kBcol = 0; kBcol < n; kBcol++) {
+          dw = iQ[kBcol + n * jBcol];
+          iQ[kBcol + n * jBcol] = iQ[kBcol + n * jp];
+          iQ[kBcol + n * jp] = dw;
         }
       }
     }
 
-    for (k = 0; k < 13; k++) {
-      memcpy(&afloat[0], &ahat[0], 12U * sizeof(double));
-      memcpy(&afixed[0], &ahat[0], 12U * sizeof(double));
-      for (i = 0; i < 12; i++) {
+    for (k = 0; k < n+1; k++) {
+      memcpy(&afloat[0], &ahat[0], n * sizeof(double));
+      memcpy(&afixed[0], &ahat[0], n * sizeof(double));
+      for (i = 0; i < n; i++) {
         dw = 0.0;
-        jBcol = (int)(((12.0 + -(double)i) + -13.0) / -1.0);
+        jBcol = (int)((((double)(n) + -(double)i) + -(n+1.0)) / -1.0);
         for (j = 0; j < jBcol; j++) {
-          dw += L[(12 * (11 - i) - j) + 11] * (afloat[11 - j] - afixed[11 - j]);
+          dw += L[(n * (n-1 - i) - j) + n-1] * (afloat[n-1 - j] - afixed[n-1 - j]);
         }
 
-        afloat[11 - i] -= dw;
-        if (12 - i != 12 - k) {
-          afixed[11 - i] = rt_roundd_snf(afloat[11 - i]);
+        afloat[n-1 - i] -= dw;
+        if (n - i != n - k) {
+          afixed[n-1 - i] = rt_roundd_snf(afloat[n-1 - i]);
         } else {
-          dw = rt_roundd_snf(afloat[11 - i]);
-          x = afloat[11 - i] - dw;
+          dw = rt_roundd_snf(afloat[n-1 - i]);
+          x = afloat[n-1 - i] - dw;
           if (x < 0.0) {
             x = -1.0;
           } else if (x > 0.0) {
@@ -204,7 +204,7 @@ double chistart(const double D[12], const double L[144], const double ahat[12],
             }
           }
 
-          afixed[11 - i] = dw + x;
+          afixed[n-1 - i] = dw + x;
         }
       }
 
@@ -212,15 +212,15 @@ double chistart(const double D[12], const double L[144], const double ahat[12],
       jBcol = Chi->size[0] * Chi->size[1];
       Chi->size[1] = jp + 1;
       emxEnsureCapacity((emxArray__common *)Chi, jBcol, sizeof(double));
-      for (jBcol = 0; jBcol < 12; jBcol++) {
+      for (jBcol = 0; jBcol < n; jBcol++) {
         afloat[jBcol] = ahat[jBcol] - afixed[jBcol];
       }
 
       dw = 0.0;
-      for (jBcol = 0; jBcol < 12; jBcol++) {
+      for (jBcol = 0; jBcol < n; jBcol++) {
         b_ahat[jBcol] = 0.0;
-        for (kBcol = 0; kBcol < 12; kBcol++) {
-          b_ahat[jBcol] += afloat[kBcol] * iQ[kBcol + 12 * jBcol];
+        for (kBcol = 0; kBcol < n; kBcol++) {
+          b_ahat[jBcol] += afloat[kBcol] * iQ[kBcol + n * jBcol];
         }
 
         dw += b_ahat[jBcol] * (ahat[jBcol] - afixed[jBcol]);
@@ -238,7 +238,7 @@ double chistart(const double D[12], const double L[144], const double ahat[12],
     // An approximation for the squared norm is computed
     float Vn = (2/n) * (pow(M_PI, (n/2)))/(tgamma(n/2));
     float prodD = 1;
-    for (int i=0; i<sizeof(D); i++){
+    for (int i=0; i<n; i++){
         prodD *=  D[i];
     }
     Chi2  = ncands * pow((ncands/(sqrt(prodD * Vn))), (2/n));

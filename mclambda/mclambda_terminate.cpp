@@ -20,9 +20,7 @@
 // --------------------------------------------------------------------------  
 
 // Include Files
-//#include "rt_nonfinite.cpp"
-//#include "LAMBDA.cpp"
-#include "LAMBDA_terminate.h"
+#include "mclambda_terminate.h"
 
 // --------------------------------------------------------------------------
 //                          Function Definitions
@@ -34,7 +32,7 @@
 // Return Type  : void
 //
 // --------------------------------------------------------------------------
-void LAMBDA_terminate()
+void mclambda_terminate()
 {
   // (no terminate code required)
 }

@@ -21,14 +21,14 @@
 #include <string.h>
 #include "math_functions\rt_nonfinite.h"
 #include "math_functions\rtwtypes.h"
-#include "LAMBDA_types.h"
+#include "mclambda_types.h"
 
 // --------------------------------------------------------------------------
 //                          Function Declarations
 // --------------------------------------------------------------------------
-static double rt_remd_snf(double u0, double u1);
+extern static double rt_remd_snf(double u0, double u1);
 
-void mclambda(double ahat[12], const double Qahat[144], double method, double
+extern void mclambda(int n, double ahat[], const double Qahat[], double method, double
             param, const emxArray_char_T *type, double value, emxArray_real_T
             *afixed, emxArray_real_T *sqnorm, double *Ps, double Qzhat[],
             double Z[], double *nfixed, double *mu);

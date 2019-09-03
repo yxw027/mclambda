@@ -28,11 +28,11 @@
 // Include Files
 #include <iostream>
 #include "..\math_functions\rt_nonfinite.cpp"
-#include "..\LAMBDA.cpp"
+#include "..\mclambda.cpp"
 #include "main.h"
-#include "..\LAMBDA_terminate.cpp"
-#include "..\LAMBDA_emxAPI.cpp"
-#include "..\LAMBDA_initialize.cpp"
+#include "..\mclambda_terminate.cpp"
+#include "..\mclambda_emxAPI.cpp"
+#include "..\mclambda_initialize.cpp"
 
 using namespace std;
 
@@ -118,9 +118,9 @@ static emxArray_char_T *c_argInit_UnboundedxUnbounded_c()
 
   // Comment uncomment in order to change the method of calculation
   /*result->data[0] = 'P';
-  result->data[1] = 'O';*/
+  result->data[1] = 'O';
 
-  /*result->data[0] = 'M';
+  result->data[0] = 'M';
   result->data[1] = 'U';*/
 
   result->data[0] = 'N';
@@ -139,11 +139,12 @@ static emxArray_char_T *c_argInit_UnboundedxUnbounded_c()
 // Return Type  : void
 //
 // --------------------------------------------------------------------------
-static void main_LAMBDA()
+static void main_mclambda()
 {
   // Definiton of variables and example values
   emxArray_real_T *afixed;
   emxArray_real_T *sqnorm;
+  int n = 12; // number of float parameters
   double ahat[12] = { -28490.8566886116, 65752.6299198198, 38830.3666554972, 5003.70833517778,
           -29196.0699104593, -297.658932458787, -22201.0284440701, 51235.8374755528,
           30257.7809603224, 3899.40332138829, -22749.1853575113, -159.278779870217 };
@@ -159,7 +160,7 @@ static void main_LAMBDA()
           11230.0704356810, 438.480887460148, -5454.93697674992, 12160.1358938811, 3927.04096320258, -7518.67445829957, 8750.70438611838, 341.673569568934, -4250.60009053988, 9475.43086798586, 3060.03207008500, -5858.70721928591,
           7835.62344938376, -10776.6902686912, -9113.66310734779, 3927.04096307733, 5314.88728015545, -5361.22656681708, 6105.68076067050, -8397.42083743563, -7101.55551676305, 3060.03207008500, 4141.47090961885, -4177.57899193454,
           -11111.1393808147, 21329.9423774758, 17054.1567378091, -7518.67445855756, -5361.22656658847, 18114.1936088811, -8658.03053539344, 16620.7344703582, 13288.9534523001, -5858.70721928591, -4177.57899193454, 14114.9563601479 };
-  double method = 1.0;
+  double method = 2.0;
   double param = 1;
   emxArray_char_T *type;
   double value = 10;
@@ -175,10 +176,10 @@ static void main_LAMBDA()
   type = c_argInit_UnboundedxUnbounded_c();
 
   // Call the entry-point 'mclambda'.
-  mclambda(ahat, Qahat, method, param, type, value, afixed, sqnorm, &Ps, Qzhat, Z, &nfixed, &mu);
+  mclambda(n, ahat, Qahat, method, param, type, value, afixed, sqnorm, &Ps, Qzhat, Z, &nfixed, &mu);
 
   // Print results of afixed vector
-  for (int i=0; i<12; i++){
+  for (int i=0; i<36; i++){
     cout<<afixed->data[i]<< endl;
   }
   emxDestroyArray_real_T(sqnorm);
@@ -197,15 +198,15 @@ int main(int, const char * const [])
 {
   // Initialize the application.
   // You do not need to do this more than one time.
-  LAMBDA_initialize();
+  mclambda_initialize();
 
   // Invoke the entry-point functions.
   // You can call entry-point functions multiple times.
-  main_LAMBDA();
+  main_mclambda();
 
   // Terminate the application.
   // You do not need to do this more than one time.
-  LAMBDA_terminate();
+  mclambda_terminate();
   return 0;
 }
 // --------------------------------------------------------------------------

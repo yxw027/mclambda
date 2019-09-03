@@ -1,18 +1,8 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: sortIdx.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
 #include "rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "sortIdx.h"
-#include "..\LAMBDA_emxutil.h"
+#include "..\mclambda_emxutil.h"
 
 // Function Declarations
 static void merge(emxArray_int32_T *idx, emxArray_real_T *x, int offset, int np,
@@ -20,18 +10,7 @@ static void merge(emxArray_int32_T *idx, emxArray_real_T *x, int offset, int np,
 static void merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
   int n, int preSortLevel, emxArray_int32_T *iwork, emxArray_real_T *xwork);
 
-// Function Definitions
-
-//
-// Arguments    : emxArray_int32_T *idx
-//                emxArray_real_T *x
-//                int offset
-//                int np
-//                int nq
-//                emxArray_int32_T *iwork
-//                emxArray_real_T *xwork
-// Return Type  : void
-//
+// --------------------------------------------------------------------------
 static void merge(emxArray_int32_T *idx, emxArray_real_T *x, int offset, int np,
                   int nq, emxArray_int32_T *iwork, emxArray_real_T *xwork)
 {
@@ -81,17 +60,9 @@ static void merge(emxArray_int32_T *idx, emxArray_real_T *x, int offset, int np,
     } while (exitg1 == 0);
   }
 }
+// --------------------------------------------------------------------------.
 
-//
-// Arguments    : emxArray_int32_T *idx
-//                emxArray_real_T *x
-//                int offset
-//                int n
-//                int preSortLevel
-//                emxArray_int32_T *iwork
-//                emxArray_real_T *xwork
-// Return Type  : void
-//
+// --------------------------------------------------------------------------
 static void merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
   int n, int preSortLevel, emxArray_int32_T *iwork, emxArray_real_T *xwork)
 {
@@ -124,12 +95,9 @@ static void merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
     merge(idx, x, offset, bLen, n - bLen, iwork, xwork);
   }
 }
+// --------------------------------------------------------------------------
 
-//
-// Arguments    : emxArray_real_T *x
-//                emxArray_int32_T *idx
-// Return Type  : void
-//
+// --------------------------------------------------------------------------
 void sortIdx(emxArray_real_T *x, emxArray_int32_T *idx)
 {
   int ib;
@@ -402,9 +370,4 @@ void sortIdx(emxArray_real_T *x, emxArray_int32_T *idx)
   emxFree_real_T(&xwork);
   emxFree_int32_T(&iwork);
 }
-
-//
-// File trailer for sortIdx.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

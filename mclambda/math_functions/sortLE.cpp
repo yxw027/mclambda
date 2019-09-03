@@ -1,28 +1,9 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: sortLE.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
 #include "rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "sortLE.h"
 
-// Function Definitions
-
-//
-// Arguments    : const emxArray_real_T *v
-//                const int col_data[]
-//                const int col_size[2]
-//                int irow1
-//                int irow2
-// Return Type  : boolean_T
-//
+// --------------------------------------------------------------------------
 boolean_T sortLE(const emxArray_real_T *v, const int col_data[], const int
                  col_size[2], int irow1, int irow2)
 {
@@ -59,9 +40,4 @@ boolean_T sortLE(const emxArray_real_T *v, const int col_data[], const int
 
   return p;
 }
-
-//
-// File trailer for sortLE.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

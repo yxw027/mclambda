@@ -1,17 +1,4 @@
-/*
- * Academic License - for use in teaching, academic research, and meeting
- * course requirements at degree granting institutions only.  Not for
- * government, commercial, or other organizational use.
- * File: rtGetInf.cpp
- *
- * MATLAB Coder version            : 3.3
- * C/C++ source code generated on  : 08-Aug-2019 14:38:13
- */
-
-/*
- * Abstract:
- *       MATLAB for code generation function to initialize non-finite, Inf and MinusInf
- */
+// Include Files
 #include "rtGetInf.h"
 #define NumBitsPerChar                 8U
 
@@ -136,9 +123,3 @@ real32_T rtGetMinusInfF(void)
   minfF.wordL.wordLuint = 0xFF800000U;
   return minfF.wordL.wordLreal;
 }
-
-/*
- * File trailer for rtGetInf.cpp
- *
- * [EOF]
- */

@@ -22,6 +22,7 @@
 //
 //  INPUTS:
 //
+//         n: Number of float ambiguities
 //      ahat: Float ambiguities
 //     Qahat: Variance/covariance matrix of ambiguities
 //    method: 1: ILS method based on search-and-shrink
@@ -34,8 +35,8 @@
 //            - 1 -> Activated
 //      type: [Optional input argument] Define some specific arguments
 //            - 'ncands',value: Number of requested integer candidate vectors
-//                              (only used with ILS/PAR, DEFAULT = 2)
-//            - 'P0',value    : With method 6 (ILS + Ratio test): Fixed failure rate
+//                              (only used with ILS, DEFAULT = 2)
+//            - 'P0',value    : With method 5 (ILS + Ratio test): Fixed failure rate
 //                              (available options: 0.01 or 0.001) [DEFAULT=0.001]
 //            - 'MU',value    : Fixed threshold value for Ratio Test
 //                              (value must be between 0 and 1)
@@ -61,9 +62,7 @@
 //            - dimension (n x nfixed) for method 5 (PAR).
 //    nfixed: Number of fixed ambiguities
 //            - with methods 1 to 4: will always be equal to n
-//            - with method 5 (PAR): will be equal to the number of
-//              fixed decorrelated ambiguities
-//            - with method 6 (ILS + Ratio test): will be equal to n if fixed
+//            - with method 5 (ILS + Ratio test): will be equal to n if fixed
 //              solution is accepted, and 0 otherwise
 //        mu: Threshold value used for Ratio Test
 //
@@ -73,14 +72,14 @@
 #include <iostream>
 #include "math_functions\upper.cpp"
 #include "math_functions\erfc.cpp"
-#include "LAMBDA_emxutil.cpp"
+#include "mclambda_emxutil.cpp"
 #include "math_functions\interp1q.cpp"
 #include "routines\ssearch.cpp"
 #include "routines\lsearch.cpp"
 #include "math_functions\eig.cpp"
 #include "routines\decorrel.cpp"
-#include "LAMBDA_rtwutil.cpp"
-#include "LAMBDA.h"
+#include "mclambda_rtwutil.cpp"
+#include "mclambda.h"
 
 using namespace std;
 
@@ -133,8 +132,9 @@ static double rt_remd_snf(double u0, double u1)
 //                                 mclambda
 // --------------------------------------------------------------------------
 //
-// Arguments    : double ahat[12]               -> Vector of float ambiguities
-//                const double Qahat[144]       -> Variance/covariance matrix 
+// Arguments    : int n                         -> Number of float ambiguities
+//                double ahat                   -> Vector of float ambiguities
+//                const double Qahat            -> Variance/covariance matrix 
 //                                                 of ambiguities
 //                double method                 -> Calculation methodology
 //                double param                  -> Activate optional parameters
@@ -151,7 +151,7 @@ static double rt_remd_snf(double u0, double u1)
 // Return       : void
 //
 // --------------------------------------------------------------------------
-void mclambda(double ahat[12], const double Qahat[144], double method, double
+void mclambda(int n, double ahat[], const double Qahat[], double method, double
             param, const emxArray_char_T *type, double value, emxArray_real_T
             *afixed, emxArray_real_T *sqnorm, double *Ps, double Qzhat[],
             double Z[], double *nfixed, double *mu)
@@ -174,22 +174,22 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
   double b_nfixed;
   int exitg2;
   int ib;
-  creal_T unusedExpr[12];
-  double x[12];
-  double incr[12];
-  double L[144];
-  double afcond[12];
-  double iZt[144];
+  creal_T unusedExpr[n];
+  double x[n];
+  double incr[n];
+  double L[n*n];
+  double afcond[n];
+  double iZt[n*n];
   double b_Ps;
-  double S[12];
+  double S[n];
   emxArray_real_T *b_zfixed;
   emxArray_real_T *b_sqnorm;
   emxArray_real_T *zpar;
   unsigned int unnamed_idx_1;
   int ic;
   int ia;
-  double b_afixed[12];
-  double S_data[11];
+  double b_afixed[n];
+  double S_data[n-1];
   double table_data[1984];
 
   // ============================= DATA =====================================
@@ -724,15 +724,15 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
   emxFree_char_T(&switch_expression);
   emxInit_real_T(&zfixed, 2);
   ar = zfixed->size[0] * zfixed->size[1];
-  zfixed->size[0] = 12;
+  zfixed->size[0] = n;
   zfixed->size[1] = (int)ncands;
   emxEnsureCapacity((emxArray__common *)zfixed, ar, sizeof(double));
-  k = 12 * (int)ncands;
+  k = n * (int)ncands;
   for (ar = 0; ar < k; ar++) {
     zfixed->data[ar] = 0.0;
   }
 
-  b_nfixed = 12.0;
+  b_nfixed = (float)(n);
   ar = sqnorm->size[0] * sqnorm->size[1];
   sqnorm->size[0] = 0;
   sqnorm->size[1] = 0;
@@ -741,25 +741,25 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
   // Tests on Inputs ahat and Qahat
   // - Is the Q-matrix symmetric?
   // - Is the Q-matrix positive-definite?
-  eig(Qahat, unusedExpr);
+  eig(n, Qahat, unusedExpr);
 
   // Remove integer numbers from float solution, so that all values 
   // are between -1 and 1 (for computational convenience only)
-  for (k = 0; k < 12; k++) {
+  for (k = 0; k < n; k++) {
     x[k] = ahat[k];
     incr[k] = ahat[k] - rt_remd_snf(ahat[k], 1.0);
   }
 
-  for (k = 0; k < 12; k++) {
+  for (k = 0; k < n; k++) {
     ahat[k] = rt_remd_snf(x[k], 1.0);
   }
 
   // Compute Z matrix based on the decomposition  Q=L^T*D*L; The transformed
   // float solution: \hat{a} = Z^T *ahat, Qzhat = Z^T * Qahat * Z
-  decorrel(Qahat, ahat, Qzhat, Z, L, afcond, x, iZt);
+  decorrel(n, Qahat, ahat, Qzhat, Z, L, afcond, x, iZt);
 
   // Compute the bootstrapped success rate
-  for (k = 0; k < 12; k++) {
+  for (k = 0; k < n; k++) {
     S[k] = 2.0 * (0.5 * b_erfc(-(0.5 / std::sqrt(afcond[k])) /
       1.4142135623730951)) - 1.0;
   }
@@ -774,9 +774,9 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
   emxInit_real_T(&b_sqnorm, 2);
   switch ((int)method) {
     case 1: // ILS with shrinking search
-      ssearch(x, L, afcond, ncands, b_zfixed, b_sqnorm);
+      ssearch(n, x, L, afcond, ncands, b_zfixed, b_sqnorm);
       ar = zfixed->size[0] * zfixed->size[1];
-      zfixed->size[0] = 12;
+      zfixed->size[0] = n;
       zfixed->size[1] = b_zfixed->size[1];
       emxEnsureCapacity((emxArray__common *)zfixed, ar, sizeof(double));
       k = b_zfixed->size[0] * b_zfixed->size[1];
@@ -795,9 +795,9 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
     break;
 
     case 2: // ILS with enumeration search
-      lsearch(x, L, afcond, ncands, b_zfixed, b_sqnorm);
+      lsearch(n, x, L, afcond, ncands, b_zfixed, b_sqnorm);
       ar = zfixed->size[0] * zfixed->size[1];
-      zfixed->size[0] = 12;
+      zfixed->size[0] = n;
       zfixed->size[1] = b_zfixed->size[1];
       emxEnsureCapacity((emxArray__common *)zfixed, ar, sizeof(double));
       k = b_zfixed->size[0] * b_zfixed->size[1];
@@ -816,23 +816,23 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
     break;
 
     case 3: // Integer rounding
-      for (k = 0; k < 12; k++) {
+      for (k = 0; k < n; k++) {
         x[k] = rt_roundd_snf(x[k]);
       }
 
       ar = zfixed->size[0] * zfixed->size[1];
-      zfixed->size[0] = 12;
+      zfixed->size[0] = n;
       zfixed->size[1] = 1;
       emxEnsureCapacity((emxArray__common *)zfixed, ar, sizeof(double));
-      for (ar = 0; ar < 12; ar++) {
+      for (ar = 0; ar < n; ar++) {
         zfixed->data[ar] = x[ar];
       }
     break;
 
     case 4: // Integer bootstraping
-      memset(&b_afixed[0], 0, 12U * sizeof(double));
-      memset(&afcond[0], 0, 12U * sizeof(double));
-      memset(&S[0], 0, 12U * sizeof(double));
+      memset(&b_afixed[0], 0, n * sizeof(double));
+      memset(&afcond[0], 0, n * sizeof(double));
+      memset(&S[0], 0, n * sizeof(double));
       afcond[11] = x[11];
 
       // Rounding of last ambiguity (should be preferably be the most precise one) 
@@ -844,7 +844,7 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
         i = b_afixed[11 - FFRT] - afcond[11 - FFRT];
         k = 11 - FFRT;
         for (ar = 0; ar < k; ar++) {
-          S_data[ar] = S[ar] + i * L[(12 * ar - FFRT) + 11];
+          S_data[ar] = S[ar] + i * L[(n * ar - FFRT) + 11];
         }
 
         k = 11 - FFRT;
@@ -857,18 +857,18 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
       }
 
       ar = zfixed->size[0] * zfixed->size[1];
-      zfixed->size[0] = 12;
+      zfixed->size[0] = n;
       zfixed->size[1] = 1;
       emxEnsureCapacity((emxArray__common *)zfixed, ar, sizeof(double));
-      for (ar = 0; ar < 12; ar++) {
+      for (ar = 0; ar < n; ar++) {
         zfixed->data[ar] = b_afixed[ar];
       }
     break;
 
     case 5: //  ILS with Ratio Test
-      ssearch(x, L, afcond, ncands, b_zfixed, b_sqnorm);
+      ssearch(n, x, L, afcond, ncands, b_zfixed, b_sqnorm);
       ar = zfixed->size[0] * zfixed->size[1];
-      zfixed->size[0] = 12;
+      zfixed->size[0] = n;
       zfixed->size[1] = b_zfixed->size[1];
       emxEnsureCapacity((emxArray__common *)zfixed, ar, sizeof(double));
       k = b_zfixed->size[0] * b_zfixed->size[1];
@@ -910,10 +910,10 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
       if (b_sqnorm->data[0] / b_sqnorm->data[1] > b_mu) {
         // Rejection: keep float solution
         ar = zfixed->size[0] * zfixed->size[1];
-        zfixed->size[0] = 12;
+        zfixed->size[0] = n;
         zfixed->size[1] = 1;
         emxEnsureCapacity((emxArray__common *)zfixed, ar, sizeof(double));
-        for (ar = 0; ar < 12; ar++) {
+        for (ar = 0; ar < n; ar++) {
           zfixed->data[ar] = x[ar];
         }
 
@@ -928,15 +928,15 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
   // Perform the back-transformation and add the increments
   if (zfixed->size[0] == 1) {
     ar = afixed->size[0] * afixed->size[1];
-    afixed->size[0] = 12;
+    afixed->size[0] = n;
     afixed->size[1] = zfixed->size[1];
     emxEnsureCapacity((emxArray__common *)afixed, ar, sizeof(double));
-    for (ar = 0; ar < 12; ar++) {
+    for (ar = 0; ar < n; ar++) {
       k = zfixed->size[1];
       for (exponent = 0; exponent < k; exponent++) {
         afixed->data[ar + afixed->size[0] * exponent] = 0.0;
-        for (FFRT = 0; FFRT < 12; FFRT++) {
-          afixed->data[ar + afixed->size[0] * exponent] += iZt[ar + 12 * FFRT] *
+        for (FFRT = 0; FFRT < n; FFRT++) {
+          afixed->data[ar + afixed->size[0] * exponent] += iZt[ar + n * FFRT] *
             zfixed->data[FFRT + zfixed->size[0] * exponent];
         }
       }
@@ -944,61 +944,61 @@ void mclambda(double ahat[12], const double Qahat[144], double method, double
   } else {
     unnamed_idx_1 = (unsigned int)zfixed->size[1];
     ar = afixed->size[0] * afixed->size[1];
-    afixed->size[0] = 12;
+    afixed->size[0] = n;
     afixed->size[1] = (int)unnamed_idx_1;
-    afixed->size[0] = 12;
+    afixed->size[0] = n;
     emxEnsureCapacity((emxArray__common *)afixed, ar, sizeof(double));
     k = afixed->size[1];
     for (ar = 0; ar < k; ar++) {
-      for (exponent = 0; exponent < 12; exponent++) {
+      for (exponent = 0; exponent < n; exponent++) {
         afixed->data[exponent + afixed->size[0] * ar] = 0.0;
       }
     }
 
     if (zfixed->size[1] != 0) {
-      exponent = 12 * (zfixed->size[1] - 1);
-      for (k = 0; k <= exponent; k += 12) {
-        for (ic = k + 1; ic <= k + 12; ic++) {
+      exponent = n * (zfixed->size[1] - 1);
+      for (k = 0; k <= exponent; k += n) {
+        for (ic = k + 1; ic <= k + n; ic++) {
           afixed->data[ic - 1] = 0.0;
         }
       }
 
       FFRT = 0;
-      for (k = 0; k <= exponent; k += 12) {
+      for (k = 0; k <= exponent; k += n) {
         ar = 0;
-        for (ib = FFRT; ib + 1 <= FFRT + 12; ib++) {
+        for (ib = FFRT; ib + 1 <= FFRT + n; ib++) {
           if (zfixed->data[ib] != 0.0) {
             ia = ar;
-            for (ic = k; ic + 1 <= k + 12; ic++) {
+            for (ic = k; ic + 1 <= k + n; ic++) {
               ia++;
               afixed->data[ic] += zfixed->data[ib] * iZt[ia - 1];
             }
           }
 
-          ar += 12;
+          ar += n;
         }
 
-        FFRT += 12;
+        FFRT += n;
       }
     }
   }
 
   emxFree_real_T(&zfixed);
   ar = b_zfixed->size[0] * b_zfixed->size[1];
-  b_zfixed->size[0] = 12;
+  b_zfixed->size[0] = n;
   b_zfixed->size[1] = (int)ncands;
   emxEnsureCapacity((emxArray__common *)b_zfixed, ar, sizeof(double));
   if (!((int)ncands == 0)) {
     for (exponent = 1; exponent <= (int)ncands; exponent++) {
-      FFRT = (exponent - 1) * 12;
-      for (k = 0; k < 12; k++) {
+      FFRT = (exponent - 1) * n;
+      for (k = 0; k < n; k++) {
         b_zfixed->data[FFRT + k] = incr[k];
       }
     }
   }
 
   ar = afixed->size[0] * afixed->size[1];
-  afixed->size[0] = 12;
+  afixed->size[0] = n;
   emxEnsureCapacity((emxArray__common *)afixed, ar, sizeof(double));
   exponent = afixed->size[0];
   FFRT = afixed->size[1];

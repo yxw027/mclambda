@@ -1,12 +1,3 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: xzgeev.h
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
 #ifndef XZGEEV_H
 #define XZGEEV_H
 
@@ -19,16 +10,9 @@
 #include <string.h>
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
-#include "..\LAMBDA_types.h"
+#include "..\mclambda_types.h"
 
 // Function Declarations
-extern void xzgeev(const double A[144], int *info, creal_T alpha1[12], creal_T
-                   beta1[12]);
+extern void xzgeev(int n, const double A[], int *info, creal_T alpha1[], creal_T beta1[]);
 
 #endif
-
-//
-// File trailer for xzgeev.h
-//
-// [EOF]
-//

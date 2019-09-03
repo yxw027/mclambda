@@ -1,28 +1,8 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: erfc.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
-/*#include "rt_nonfinite.h"
-#include "LAMBDA.h"*/
+#include "rt_nonfinite.h"
 #include "erfc.h"
 
-// Function Declarations
-static double rt_powd_snf(double u0, double u1);
-
-// Function Definitions
-
-//
-// Arguments    : double u0
-//                double u1
-// Return Type  : double
-//
+// --------------------------------------------------------------------------
 static double rt_powd_snf(double u0, double u1)
 {
   double y;
@@ -68,11 +48,9 @@ static double rt_powd_snf(double u0, double u1)
 
   return y;
 }
+// --------------------------------------------------------------------------
 
-//
-// Arguments    : double x
-// Return Type  : double
-//
+// --------------------------------------------------------------------------
 double b_erfc(double x)
 {
   double y;
@@ -81,7 +59,6 @@ double b_erfc(double x)
   double s;
   double R;
   int eint;
-
   // ========================== COPYRIGHT NOTICE ============================
   //  The algorithms for calculating ERF(X) and ERFC(X) are derived
   //  from FDLIBM, which has the following notice:
@@ -174,9 +151,4 @@ double b_erfc(double x)
 
   return y;
 }
-
-//
-// File trailer for erfc.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

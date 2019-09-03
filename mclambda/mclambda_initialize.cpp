@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-//                            MC-LAMBDA rtwutil
+//                            MC-LAMBDA INITIALIZE
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------
 //  Release date  : AUG-2019
@@ -13,13 +13,14 @@
 //
 //  DESCRIPTION:
 //
-//  The library provides an rtwutil to help users construct this data 
-//  type out of the C native types
+//  Calls the initialize function LAMBDA_initialize, which is named for the 
+//  alphabetically first entry-point function foo declared for code generation. 
+//  Call the initialize function only once, even if you have multiple 
+//  entry-point functions called in the function main.
 //
 // --------------------------------------------------------------------------
-
 // Include Files
-#include "LAMBDA_rtwutil.h"
+#include "mclambda_initialize.h"
 
 // --------------------------------------------------------------------------
 //                          Function Definitions
@@ -27,53 +28,11 @@
 
 // --------------------------------------------------------------------------
 //
-// Arguments    : double u0
-//                double u1
-// Return Type  : double
+// Arguments    : void
+// Return Type  : void
 //
 // --------------------------------------------------------------------------
-double rt_hypotd_snf(double u0, double u1)
+void mclambda_initialize()
 {
-  double y;
-  double a;
-  double b;
-  a = std::abs(u0);
-  b = std::abs(u1);
-  if (a < b) {
-    a /= b;
-    y = b * std::sqrt(a * a + 1.0);
-  } else if (a > b) {
-    b /= a;
-    y = a * std::sqrt(b * b + 1.0);
-  } else if (rtIsNaN(b)) {
-    y = b;
-  } else {
-    y = a * 1.4142135623730951;
-  }
-
-  return y;
-}
-
-// --------------------------------------------------------------------------
-//
-// Arguments    : double u
-// Return Type  : double
-//
-// --------------------------------------------------------------------------
-double rt_roundd_snf(double u)
-{
-  double y;
-  if (std::abs(u) < 4.503599627370496E+15) {
-    if (u >= 0.5) {
-      y = std::floor(u + 0.5);
-    } else if (u > -0.5) {
-      y = u * 0.0;
-    } else {
-      y = std::ceil(u - 0.5);
-    }
-  } else {
-    y = u;
-  }
-
-  return y;
+  rt_InitInfAndNaN(8U);
 }

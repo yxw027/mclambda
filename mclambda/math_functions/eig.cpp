@@ -1,43 +1,26 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: eig.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
-/*#include "rt_nonfinite.h"
-#include "LAMBDA.h"*/
+#include "rt_nonfinite.h"
 #include "eig.h"
 #include "schur.cpp"
 #include "xzgeev.cpp"
 
-// Function Definitions
-
-//
-// Arguments    : const double A[144]
-//                creal_T V[12]
-// Return Type  : void
-//
-void eig(const double A[144], creal_T V[12])
+// --------------------------------------------------------------------------
+void eig(int n, const double A[], creal_T V[])
 {
   boolean_T p;
   int info;
   int i;
   boolean_T exitg2;
-  creal_T beta1[12];
-  double b_A[144];
-  creal_T T[144];
+  creal_T beta1[n];
+  double b_A[n*n];
+  creal_T T[n*n];
   int exitg1;
   double V_re;
   double brm;
   double bim;
   double d;
   p = false;
-  for (info = 0; info < 144; info++) {
+  for (info = 0; info < n*n; info++) {
     if (p || rtIsInf(A[info]) || rtIsNaN(A[info])) {
       p = true;
     } else {
@@ -46,7 +29,7 @@ void eig(const double A[144], creal_T V[12])
   }
 
   if (p) {
-    for (i = 0; i < 12; i++) {
+    for (i = 0; i < n; i++) {
       V[i].re = rtNaN;
       V[i].im = 0.0;
     }
@@ -54,12 +37,12 @@ void eig(const double A[144], creal_T V[12])
     p = true;
     info = 0;
     exitg2 = false;
-    while ((!exitg2) && (info < 12)) {
+    while ((!exitg2) && (info < n)) {
       i = 0;
       do {
         exitg1 = 0;
         if (i <= info) {
-          if (!(A[i + 12 * info] == A[info + 12 * i])) {
+          if (!(A[i + n * info] == A[info + n * i])) {
             p = false;
             exitg1 = 1;
           } else {
@@ -77,14 +60,14 @@ void eig(const double A[144], creal_T V[12])
     }
 
     if (p) {
-      memcpy(&b_A[0], &A[0], 144U * sizeof(double));
-      schur(b_A, T);
-      for (info = 0; info < 12; info++) {
-        V[info] = T[info + 12 * info];
+      memcpy(&b_A[0], &A[0], n*n * sizeof(double));
+      schur(n, b_A, T);
+      for (info = 0; info < n; info++) {
+        V[info] = T[info + n * info];
       }
     } else {
-      xzgeev(A, &info, V, beta1);
-      for (info = 0; info < 12; info++) {
+      xzgeev(n, A, &info, V, beta1);
+      for (info = 0; info < n; info++) {
         V_re = V[info].re;
         if (beta1[info].im == 0.0) {
           if (V[info].im == 0.0) {
@@ -142,9 +125,4 @@ void eig(const double A[144], creal_T V[12])
     }
   }
 }
-
-//
-// File trailer for eig.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

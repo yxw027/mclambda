@@ -1,26 +1,11 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: sort1.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
 #include "rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "sort1.h"
-#include "..\LAMBDA_emxutil.h"
+#include "..\mclambda_emxutil.h"
 #include "sortIdx.cpp"
 
-// Function Definitions
-
-//
-// Arguments    : emxArray_real_T *x
-// Return Type  : void
-//
+// --------------------------------------------------------------------------
 void b_sort(emxArray_real_T *x)
 {
   emxArray_real_T *vwork;
@@ -49,12 +34,9 @@ void b_sort(emxArray_real_T *x)
 
   emxFree_real_T(&vwork);
 }
+// --------------------------------------------------------------------------
 
-//
-// Arguments    : emxArray_real_T *x
-//                emxArray_int32_T *idx
-// Return Type  : void
-//
+// --------------------------------------------------------------------------
 void sort(emxArray_real_T *x, emxArray_int32_T *idx)
 {
   emxArray_real_T *vwork;
@@ -86,9 +68,4 @@ void sort(emxArray_real_T *x, emxArray_int32_T *idx)
   emxFree_int32_T(&iidx);
   emxFree_real_T(&vwork);
 }
-
-//
-// File trailer for sort1.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

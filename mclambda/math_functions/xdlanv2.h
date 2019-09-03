@@ -1,12 +1,3 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: xdlanv2.h
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
 #ifndef XDLANV2_H
 #define XDLANV2_H
 
@@ -19,7 +10,7 @@
 #include <string.h>
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
-#include "..\LAMBDA_types.h"
+#include "..\mclambda_types.h"
 
 // Function Declarations
 extern void xdlanv2(double *a, double *b, double *c, double *d, double *rt1r,
@@ -27,9 +18,3 @@ extern void xdlanv2(double *a, double *b, double *c, double *d, double *rt1r,
                     *sn);
 
 #endif
-
-//
-// File trailer for xdlanv2.h
-//
-// [EOF]
-//

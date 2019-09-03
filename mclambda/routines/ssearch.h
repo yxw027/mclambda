@@ -21,17 +21,12 @@
 #include <string.h>
 #include "..\math_functions\rt_nonfinite.h"
 #include "..\math_functions\rtwtypes.h"
-#include "..\LAMBDA_types.h"
+#include "..\mclambda_types.h"
 
 // --------------------------------------------------------------------------
 //                          Function Declarations
 // --------------------------------------------------------------------------
-extern void b_ssearch(const double ahat_data[], const int ahat_size[1], const
-                      double L_data[], const int L_size[2], const double D_data[],
-                      double ncands, emxArray_real_T *afixed, emxArray_real_T
-                      *sqnorm);
-extern void ssearch(const double ahat[12], const double L[144], const double D
-                    [12], double ncands, emxArray_real_T *afixed,
-                    emxArray_real_T *sqnorm);
+void ssearch(int n1, const double ahat[], const double L[], const double D[],
+             double ncands, emxArray_real_T *afixed, emxArray_real_T *sqnorm);
 
 #endif

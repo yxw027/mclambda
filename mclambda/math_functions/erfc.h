@@ -1,12 +1,3 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: erfc.h
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
 #ifndef ERFC_H
 #define ERFC_H
 
@@ -19,15 +10,10 @@
 #include <string.h>
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
-#include "..\LAMBDA_types.h"
+#include "..\mclambda_types.h"
 
 // Function Declarations
 extern double b_erfc(double x);
+static double rt_powd_snf(double u0, double u1);
 
 #endif
-
-//
-// File trailer for erfc.h
-//
-// [EOF]
-//

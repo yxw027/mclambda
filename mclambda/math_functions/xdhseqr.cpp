@@ -1,27 +1,11 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: xdhseqr.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
 #include "rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "xdhseqr.h"
-//#include "xdlanv2.cpp"
 #include "xzlarfg.cpp"
 
-// Function Definitions
-
-//
-// Arguments    : double h[144]
-// Return Type  : int
-//
-int eml_dlahqr(double h[144])
+// --------------------------------------------------------------------------
+int eml_dlahqr(int n, double h[])
 {
   int info;
   int j;
@@ -50,12 +34,12 @@ int eml_dlahqr(double h[144])
   double v[3];
   info = 0;
   for (j = 0; j < 9; j++) {
-    h[(j + 12 * j) + 2] = 0.0;
-    h[(j + 12 * j) + 3] = 0.0;
+    h[(j + n * j) + 2] = 0.0;
+    h[(j + n * j) + 3] = 0.0;
   }
 
   h[119] = 0.0;
-  i = 11;
+  i = n-1;
   exitg1 = false;
   while ((!exitg1) && (i + 1 >= 1)) {
     L = 1;
@@ -65,22 +49,22 @@ int eml_dlahqr(double h[144])
     while ((!exitg2) && (its < 31)) {
       k = i;
       exitg3 = false;
-      while ((!exitg3) && ((k + 1 > L) && (!(std::abs(h[k + 12 * (k - 1)]) <=
+      while ((!exitg3) && ((k + 1 > L) && (!(std::abs(h[k + n * (k - 1)]) <=
                 1.2025010160053837E-291)))) {
-        tst = std::abs(h[(k + 12 * (k - 1)) - 1]) + std::abs(h[k + 12 * k]);
+        tst = std::abs(h[(k + n * (k - 1)) - 1]) + std::abs(h[k + n * k]);
         if (tst == 0.0) {
           if (k - 1 >= 1) {
-            tst = std::abs(h[(k + 12 * (k - 2)) - 1]);
+            tst = std::abs(h[(k + n * (k - 2)) - 1]);
           }
 
-          if (k + 2 <= 12) {
-            tst += std::abs(h[(k + 12 * k) + 1]);
+          if (k + 2 <= n) {
+            tst += std::abs(h[(k + n * k) + 1]);
           }
         }
 
-        if (std::abs(h[k + 12 * (k - 1)]) <= 2.2204460492503131E-16 * tst) {
-          htmp1 = std::abs(h[k + 12 * (k - 1)]);
-          tst = std::abs(h[(k + 12 * k) - 1]);
+        if (std::abs(h[k + n * (k - 1)]) <= 2.2204460492503131E-16 * tst) {
+          htmp1 = std::abs(h[k + n * (k - 1)]);
+          tst = std::abs(h[(k + n * k) - 1]);
           if (htmp1 > tst) {
             ab = htmp1;
             ba = tst;
@@ -89,8 +73,8 @@ int eml_dlahqr(double h[144])
             ba = htmp1;
           }
 
-          htmp1 = std::abs(h[k + 12 * k]);
-          tst = std::abs(h[(k + 12 * (k - 1)) - 1] - h[k + 12 * k]);
+          htmp1 = std::abs(h[k + n * k]);
+          tst = std::abs(h[(k + n * (k - 1)) - 1] - h[k + n * k]);
           if (htmp1 > tst) {
             aa = htmp1;
             htmp1 = tst;
@@ -118,7 +102,7 @@ int eml_dlahqr(double h[144])
 
       L = k + 1;
       if (k + 1 > 1) {
-        h[k + 12 * (k - 1)] = 0.0;
+        h[k + n * (k - 1)] = 0.0;
       }
 
       if (k + 1 >= i) {
@@ -126,22 +110,22 @@ int eml_dlahqr(double h[144])
         exitg2 = true;
       } else {
         if (its == 10) {
-          s = std::abs(h[(k + 12 * k) + 1]) + std::abs(h[(k + 12 * (k + 1)) + 2]);
-          tst = 0.75 * s + h[k + 12 * k];
+          s = std::abs(h[(k + n * k) + 1]) + std::abs(h[(k + n * (k + 1)) + 2]);
+          tst = 0.75 * s + h[k + n * k];
           aa = -0.4375 * s;
           htmp1 = s;
           ba = tst;
         } else if (its == 20) {
-          s = std::abs(h[i + 12 * (i - 1)]) + std::abs(h[(i + 12 * (i - 2)) - 1]);
-          tst = 0.75 * s + h[i + 12 * i];
+          s = std::abs(h[i + n * (i - 1)]) + std::abs(h[(i + n * (i - 2)) - 1]);
+          tst = 0.75 * s + h[i + n * i];
           aa = -0.4375 * s;
           htmp1 = s;
           ba = tst;
         } else {
-          tst = h[(i + 12 * (i - 1)) - 1];
-          htmp1 = h[i + 12 * (i - 1)];
-          aa = h[(i + 12 * i) - 1];
-          ba = h[i + 12 * i];
+          tst = h[(i + n * (i - 1)) - 1];
+          htmp1 = h[i + n * (i - 1)];
+          aa = h[(i + n * i) - 1];
+          ba = h[i + n * i];
         }
 
         s = ((std::abs(tst) + std::abs(aa)) + std::abs(htmp1)) + std::abs(ba);
@@ -182,14 +166,14 @@ int eml_dlahqr(double h[144])
         m = i - 2;
         exitg3 = false;
         while ((!exitg3) && (m + 1 >= k + 1)) {
-          s = (std::abs(h[m + 12 * m] - rt2r) + std::abs(ba)) + std::abs(h[(m +
-            12 * m) + 1]);
-          tst = h[(m + 12 * m) + 1] / s;
-          v[0] = (tst * h[m + 12 * (m + 1)] + (h[m + 12 * m] - rt1r) * ((h[m +
-                    12 * m] - rt2r) / s)) - ab * (ba / s);
-          v[1] = tst * (((h[m + 12 * m] + h[(m + 12 * (m + 1)) + 1]) - rt1r) -
+          s = (std::abs(h[m + n * m] - rt2r) + std::abs(ba)) + std::abs(h[(m +
+            n * m) + 1]);
+          tst = h[(m + n * m) + 1] / s;
+          v[0] = (tst * h[m + n * (m + 1)] + (h[m + n * m] - rt1r) * ((h[m +
+                    n * m] - rt2r) / s)) - ab * (ba / s);
+          v[1] = tst * (((h[m + n * m] + h[(m + n * (m + 1)) + 1]) - rt1r) -
                         rt2r);
-          v[2] = tst * h[(m + 12 * (m + 1)) + 2];
+          v[2] = tst * h[(m + n * (m + 1)) + 2];
           s = (std::abs(v[0]) + std::abs(v[1])) + std::abs(v[2]);
           tst = v[0] / s;
           v[0] /= s;
@@ -197,10 +181,10 @@ int eml_dlahqr(double h[144])
           v[1] /= s;
           aa = v[2] / s;
           v[2] /= s;
-          if ((m + 1 == k + 1) || (std::abs(h[m + 12 * (m - 1)]) * (std::abs
+          if ((m + 1 == k + 1) || (std::abs(h[m + n * (m - 1)]) * (std::abs
                 (htmp1) + std::abs(aa)) <= 2.2204460492503131E-16 * std::abs(tst)
-               * ((std::abs(h[(m + 12 * (m - 1)) - 1]) + std::abs(h[m + 12 * m]))
-                  + std::abs(h[(m + 12 * (m + 1)) + 1])))) {
+               * ((std::abs(h[(m + n * (m - 1)) - 1]) + std::abs(h[m + n * m]))
+                  + std::abs(h[(m + n * (m + 1)) + 1])))) {
             exitg3 = true;
           } else {
             m--;
@@ -214,7 +198,7 @@ int eml_dlahqr(double h[144])
           }
 
           if (b_k + 1 > m + 1) {
-            hoffset = b_k + 12 * (b_k - 1);
+            hoffset = b_k + n * (b_k - 1);
             for (j = 1; j <= nr; j++) {
               v[j - 1] = h[(j + hoffset) - 1];
             }
@@ -224,14 +208,14 @@ int eml_dlahqr(double h[144])
           rt2r = xzlarfg(nr, &tst, v);
           v[0] = tst;
           if (b_k + 1 > m + 1) {
-            h[b_k + 12 * (b_k - 1)] = tst;
-            h[(b_k + 12 * (b_k - 1)) + 1] = 0.0;
+            h[b_k + n * (b_k - 1)] = tst;
+            h[(b_k + n * (b_k - 1)) + 1] = 0.0;
             if (b_k + 1 < i) {
-              h[(b_k + 12 * (b_k - 1)) + 2] = 0.0;
+              h[(b_k + n * (b_k - 1)) + 2] = 0.0;
             }
           } else {
             if (m + 1 > k + 1) {
-              h[b_k + 12 * (b_k - 1)] *= 1.0 - rt2r;
+              h[b_k + n * (b_k - 1)] *= 1.0 - rt2r;
             }
           }
 
@@ -240,12 +224,12 @@ int eml_dlahqr(double h[144])
           if (nr == 3) {
             ab = v[2];
             ba = rt2r * v[2];
-            for (j = b_k; j + 1 < 13; j++) {
-              aa = (h[b_k + 12 * j] + tst * h[(b_k + 12 * j) + 1]) + ab * h[(b_k
-                + 12 * j) + 2];
-              h[b_k + 12 * j] -= aa * rt2r;
-              h[(b_k + 12 * j) + 1] -= aa * htmp1;
-              h[(b_k + 12 * j) + 2] -= aa * ba;
+            for (j = b_k; j + 1 < n+1; j++) {
+              aa = (h[b_k + n * j] + tst * h[(b_k + n * j) + 1]) + ab * h[(b_k
+                + n * j) + 2];
+              h[b_k + n * j] -= aa * rt2r;
+              h[(b_k + n * j) + 1] -= aa * htmp1;
+              h[(b_k + n * j) + 2] -= aa * ba;
             }
 
             if (b_k + 4 < i + 1) {
@@ -255,24 +239,24 @@ int eml_dlahqr(double h[144])
             }
 
             for (j = 0; j + 1 <= nr + 4; j++) {
-              aa = (h[j + 12 * b_k] + tst * h[j + 12 * (b_k + 1)]) + ab * h[j +
-                12 * (b_k + 2)];
-              h[j + 12 * b_k] -= aa * rt2r;
-              h[j + 12 * (b_k + 1)] -= aa * htmp1;
-              h[j + 12 * (b_k + 2)] -= aa * ba;
+              aa = (h[j + n * b_k] + tst * h[j + n * (b_k + 1)]) + ab * h[j +
+                n * (b_k + 2)];
+              h[j + n * b_k] -= aa * rt2r;
+              h[j + n * (b_k + 1)] -= aa * htmp1;
+              h[j + n * (b_k + 2)] -= aa * ba;
             }
           } else {
             if (nr == 2) {
-              for (j = b_k; j + 1 < 13; j++) {
-                aa = h[b_k + 12 * j] + tst * h[(b_k + 12 * j) + 1];
-                h[b_k + 12 * j] -= aa * rt2r;
-                h[(b_k + 12 * j) + 1] -= aa * htmp1;
+              for (j = b_k; j + 1 < n+1; j++) {
+                aa = h[b_k + n * j] + tst * h[(b_k + n * j) + 1];
+                h[b_k + n * j] -= aa * rt2r;
+                h[(b_k + n * j) + 1] -= aa * htmp1;
               }
 
               for (j = 0; j + 1 <= i + 1; j++) {
-                aa = h[j + 12 * b_k] + tst * h[j + 12 * (b_k + 1)];
-                h[j + 12 * b_k] -= aa * rt2r;
-                h[j + 12 * (b_k + 1)] -= aa * htmp1;
+                aa = h[j + n * b_k] + tst * h[j + n * (b_k + 1)];
+                h[j + n * b_k] -= aa * rt2r;
+                h[j + n * (b_k + 1)] -= aa * htmp1;
               }
             }
           }
@@ -287,29 +271,29 @@ int eml_dlahqr(double h[144])
       exitg1 = true;
     } else {
       if ((L != i + 1) && (L == i)) {
-        tst = h[(i + 12 * i) - 1];
-        htmp1 = h[i + 12 * (i - 1)];
-        aa = h[i + 12 * i];
-        xdlanv2(&h[(i + 12 * (i - 1)) - 1], &tst, &htmp1, &aa, &ab, &ba, &rt2r,
+        tst = h[(i + n * i) - 1];
+        htmp1 = h[i + n * (i - 1)];
+        aa = h[i + n * i];
+        xdlanv2(&h[(i + n * (i - 1)) - 1], &tst, &htmp1, &aa, &ab, &ba, &rt2r,
                 &rt1r, &s, &sn);
-        h[(i + 12 * i) - 1] = tst;
-        h[i + 12 * (i - 1)] = htmp1;
-        h[i + 12 * i] = aa;
-        if (12 > i + 1) {
-          nr = (i + (i + 1) * 12) - 1;
-          hoffset = i + (i + 1) * 12;
-          for (k = 1; k <= 11 - i; k++) {
+        h[(i + n * i) - 1] = tst;
+        h[i + n * (i - 1)] = htmp1;
+        h[i + n * i] = aa;
+        if (n > i + 1) {
+          nr = (i + (i + 1) * n) - 1;
+          hoffset = i + (i + 1) * n;
+          for (k = 1; k <= n-1 - i; k++) {
             tst = s * h[nr] + sn * h[hoffset];
             h[hoffset] = s * h[hoffset] - sn * h[nr];
             h[nr] = tst;
-            hoffset += 12;
-            nr += 12;
+            hoffset += n;
+            nr += n;
           }
         }
 
         if (!(i - 1 < 1)) {
-          nr = (i - 1) * 12;
-          hoffset = i * 12;
+          nr = (i - 1) * n;
+          hoffset = i * n;
           for (k = 1; k < i; k++) {
             tst = s * h[nr] + sn * h[hoffset];
             h[hoffset] = s * h[hoffset] - sn * h[nr];

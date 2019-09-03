@@ -1,12 +1,3 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: xzggbal.h
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
 #ifndef XZGGBAL_H
 #define XZGGBAL_H
 
@@ -19,15 +10,9 @@
 #include <string.h>
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
-#include "..\LAMBDA_types.h"
+#include "..\mclambda_types.h"
 
 // Function Declarations
-extern void xzggbal(creal_T A[144], int *ilo, int *ihi, int rscale[12]);
+extern void xzggbal(int n, creal_T A[], int *ilo, int *ihi, int rscale[]);
 
 #endif
-
-//
-// File trailer for xzggbal.h
-//
-// [EOF]
-//

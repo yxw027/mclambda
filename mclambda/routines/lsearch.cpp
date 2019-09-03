@@ -16,10 +16,11 @@
 //  This routine finds the integer vector which is closest to a given
 //  float vector, in a least squares sence. This is the search-step in
 //  integer ambiguity resolution. It is best to perform this search only
-//  on ambiguities which have been decorrelated using LAMBDA.
+//  on ambiguities which have been decorrelated using MCLAMBDA.
 //
 //  INPUTS:
 //
+//     n      : Number of float ambiguities
 //     ahat   : Float ambiguities (should be decorrelated for computational
 //              efficiency)
 //     L,D    : LtDL-decomposition of the variance-covariance matrix of the
@@ -38,7 +39,7 @@
 #include "..\math_functions\inv.cpp"
 #include "chistart.cpp"
 #include "lsearch.h"
-#include "..\LAMBDA_rtwutil.h"
+#include "..\mclambda_rtwutil.h"
 
 using namespace std;
 // --------------------------------------------------------------------------
@@ -49,7 +50,8 @@ using namespace std;
 //                               lsearch
 // --------------------------------------------------------------------------
 //
-// Arguments    : const double ahat       -> Vector of float ambiguities
+// Arguments    : int n                   -> Number of float ambiguities
+//                const double ahat       -> Vector of float ambiguities
 //                const double L          -> Matrix D of LDL-decomposition
 //                const double D          -> Matrix L of LDL-decomposition
 //                double ncands           -> Requested number of candidates
@@ -59,25 +61,25 @@ using namespace std;
 // Return       : void
 //
 // --------------------------------------------------------------------------
-void lsearch(const double ahat[12], const double L[144], const double D[12],
+void lsearch(int n1, const double ahat[], const double L[], const double D[],
              double ncands, emxArray_real_T *afixed, emxArray_real_T *sqnorm)
 {
   // ============================= VARIABLES ================================
   double Chi2;
-  double Linv[144];
+  double Linv[n1*n1];
   int i;
-  double right[13];
-  double Dinv[12];
-  double left[13];
+  double right[n1+1];
+  double Dinv[n1];
+  double left[n1+1];
   int qEnd;
-  double dq[12];
+  double dq[n1];
   int endsearch;
   unsigned int ncan;
   int iold;
   int i2;
-  double lef[12];
-  double distl[12];
-  double endd[12];
+  double lef[n1];
+  double distl[n1];
+  double endd[n1];
   emxArray_real_T *tmp;
   emxArray_real_T *ndx;
   int j;
@@ -92,36 +94,36 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
   int col_size[2];
   int k;
   emxArray_int32_T *idx;
-  int col_data[13];
+  int col_data[n1+1];
   emxArray_int32_T *iwork;
   emxArray_real_T *ycol;
 
   // ============================ START PROGRAM ===============================
   // Computes the initial size of the search ellipsoid (USING CHISTART ROUTINE)
-  Chi2 = chistart(D, L, ahat, ncands);
+  Chi2 = chistart(n1, D, L, ahat, ncands+1);
   // Initialization
-  inv(L, Linv);
-  for (i = 0; i < 12; i++) {
+  inv(n1, L, Linv);
+  for (i = 0; i < n1; i++) {
     Dinv[i] = 1.0 / D[i];
     right[i] = 0.0;
   }
 
-  right[12] = Chi2;
-  memset(&left[0], 0, 13U * sizeof(double));
-  for (qEnd = 0; qEnd < 11; qEnd++) {
+  right[n1] = Chi2;
+  memset(&left[0], 0, n1+1 * sizeof(double));
+  for (qEnd = 0; qEnd < n1-1; qEnd++) {
     dq[qEnd] = Dinv[1 + qEnd] / Dinv[qEnd];
   }
 
-  dq[11] = 1.0 / Dinv[11];
+  dq[n1-1] = 1.0 / Dinv[n1-1];
   endsearch = 0;
   ncan = 0U;
-  i = 12;
-  iold = 12;
+  i = n1;
+  iold = n1;
   qEnd = afixed->size[0] * afixed->size[1];
-  afixed->size[0] = 12;
+  afixed->size[0] = n1;
   afixed->size[1] = (int)ncands;
   emxEnsureCapacity((emxArray__common *)afixed, qEnd, sizeof(double));
-  i2 = 12 * (int)ncands;
+  i2 = n1 * (int)ncands;
   for (qEnd = 0; qEnd < i2; qEnd++) {
     afixed->data[qEnd] = 0.0;
   }
@@ -136,18 +138,18 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
   }
 
   // Start the main search-loop
-  memset(&lef[0], 0, 12U * sizeof(double));
-  memset(&distl[0], 0, 12U * sizeof(double));
-  memset(&endd[0], 0, 12U * sizeof(double));
+  memset(&lef[0], 0, n1 * sizeof(double));
+  memset(&distl[0], 0, n1 * sizeof(double));
+  memset(&endd[0], 0, n1 * sizeof(double));
   while (!(endsearch != 0)) {
     i--;
     if (iold + 1 <= i + 1) {
-      lef[i] += Linv[(i + 12 * i) + 1];
+      lef[i] += Linv[(i + n1 * i) + 1];
     } else {
       lef[i] = 0.0;
       for (j = 0; j <= 10 - i; j++) {
         i2 = (i + j) + 1;
-        lef[i] += Linv[i2 + 12 * i] * distl[i2];
+        lef[i] += Linv[i2 + n1 * i] * distl[i2];
       }
     }
 
@@ -159,20 +161,20 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
       // There is nothing at this level, so backtrack
       pEnd = 0;
       p = 0;
-      while ((!(p != 0)) && (i + 1 < 12)) {
+      while ((!(p != 0)) && (i + 1 < n1)) {
         i++;
         if (distl[i] < endd[i]) {
           distl[i]++;
           reach = distl[i] + lef[i];
           left[i] = reach * reach;
           p = 1;
-          if (i + 1 == 12) {
+          if (i + 1 == n1) {
             pEnd = 1;
           }
         }
       }
 
-      if ((i + 1 == 12) && (!(pEnd != 0))) {
+      if ((i + 1 == n1) && (!(pEnd != 0))) {
         endsearch = 1;
       }
     } else {
@@ -192,7 +194,7 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
       while (distl[0] <= endd[0]) {
         if (ncan < ncands) {
           ncan++;
-          for (qEnd = 0; qEnd < 12; qEnd++) {
+          for (qEnd = 0; qEnd < n1; qEnd++) {
             afixed->data[qEnd + afixed->size[0] * ((int)ncan - 1)] = distl[qEnd]
               + ahat[qEnd];
           }
@@ -232,7 +234,7 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
           }
 
           if (reach < mtmp) {
-            for (qEnd = 0; qEnd < 12; qEnd++) {
+            for (qEnd = 0; qEnd < n1; qEnd++) {
               afixed->data[qEnd + afixed->size[0] * p] = distl[qEnd] + ahat[qEnd];
             }
 
@@ -247,20 +249,20 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
       // And backtrack
       pEnd = 0;
       p = 0;
-      while ((!(p != 0)) && (i + 1 < 12)) {
+      while ((!(p != 0)) && (i + 1 < n1)) {
         i++;
         if (distl[i] < endd[i]) {
           distl[i]++;
           reach = distl[i] + lef[i];
           left[i] = reach * reach;
           p = 1;
-          if (i + 1 == 12) {
+          if (i + 1 == n1) {
             pEnd = 1;
           }
         }
       }
 
-      if ((i + 1 == 12) && (!(pEnd != 0))) {
+      if ((i + 1 == n1) && (!(pEnd != 0))) {
         endsearch = 1;
       }
     }
@@ -281,9 +283,9 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
   emxInit_real_T(&varargin_2, 2);
   qEnd = varargin_2->size[0] * varargin_2->size[1];
   varargin_2->size[0] = afixed->size[1];
-  varargin_2->size[1] = 12;
+  varargin_2->size[1] = n1;
   emxEnsureCapacity((emxArray__common *)varargin_2, qEnd, sizeof(double));
-  for (qEnd = 0; qEnd < 12; qEnd++) {
+  for (qEnd = 0; qEnd < n1; qEnd++) {
     i2 = afixed->size[1];
     for (iold = 0; iold < i2; iold++) {
       varargin_2->data[iold + varargin_2->size[0] * qEnd] = afixed->data[qEnd +
@@ -307,7 +309,7 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
   }
 
   if (empty_non_axis_sizes || (!(varargin_2->size[0] == 0))) {
-    p = 12;
+    p = n1;
   } else {
     p = 0;
   }
@@ -456,9 +458,9 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
   i2 = tmp->size[0];
   qEnd = varargin_2->size[0] * varargin_2->size[1];
   varargin_2->size[0] = i2;
-  varargin_2->size[1] = 12;
+  varargin_2->size[1] = n1;
   emxEnsureCapacity((emxArray__common *)varargin_2, qEnd, sizeof(double));
-  for (qEnd = 0; qEnd < 12; qEnd++) {
+  for (qEnd = 0; qEnd < n1; qEnd++) {
     for (iold = 0; iold < i2; iold++) {
       varargin_2->data[iold + varargin_2->size[0] * qEnd] = tmp->data[iold +
         tmp->size[0] * (1 + qEnd)];
@@ -466,7 +468,7 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
   }
 
   qEnd = tmp->size[0];
-  i2 = qEnd * 12;
+  i2 = qEnd * n1;
   k = 0;
   emxFree_real_T(&tmp);
   while (k + 1 <= i2) {
@@ -475,12 +477,12 @@ void lsearch(const double ahat[12], const double L[144], const double D[12],
   }
 
   qEnd = afixed->size[0] * afixed->size[1];
-  afixed->size[0] = 12;
+  afixed->size[0] = n1;
   afixed->size[1] = varargin_2->size[0];
   emxEnsureCapacity((emxArray__common *)afixed, qEnd, sizeof(double));
   i2 = varargin_2->size[0];
   for (qEnd = 0; qEnd < i2; qEnd++) {
-    for (iold = 0; iold < 12; iold++) {
+    for (iold = 0; iold < n1; iold++) {
       afixed->data[iold + afixed->size[0] * qEnd] = varargin_2->data[qEnd +
         varargin_2->size[0] * iold];
     }

@@ -1,26 +1,9 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: upper.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
-/*#include "rt_nonfinite.h"
-#include "LAMBDA.h"*/
-#include "..\LAMBDA_emxutil.h"
+#include "rt_nonfinite.h"
+#include "..\mclambda_emxutil.h"
 #include "upper.h"
 
-// Function Definitions
-
-//
-// Arguments    : const emxArray_char_T *x
-//                emxArray_char_T *y
-// Return Type  : void
-//
+// --------------------------------------------------------------------------
 void upper(const emxArray_char_T *x, emxArray_char_T *y)
 {
   int i0;
@@ -46,9 +29,4 @@ void upper(const emxArray_char_T *x, emxArray_char_T *y)
     y->data[k] = cv3[(unsigned char)x->data[k] & 127];
   }
 }
-
-//
-// File trailer for upper.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

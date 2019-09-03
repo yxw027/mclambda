@@ -1,29 +1,11 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: xzlartg.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
 #include "rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "xzlartg.h"
 #include "schur.h"
-#include "..\LAMBDA_rtwutil.h"
+#include "..\mclambda_rtwutil.h"
 
-// Function Definitions
-
-//
-// Arguments    : const creal_T f
-//                const creal_T g
-//                double *cs
-//                creal_T *sn
-// Return Type  : void
-//
+// --------------------------------------------------------------------------
 void b_xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn)
 {
   double scale;
@@ -140,15 +122,9 @@ void b_xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn)
     }
   }
 }
+// --------------------------------------------------------------------------
 
-//
-// Arguments    : const creal_T f
-//                const creal_T g
-//                double *cs
-//                creal_T *sn
-//                creal_T *r
-// Return Type  : void
-//
+// --------------------------------------------------------------------------
 void xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn, creal_T *
              r)
 {
@@ -292,9 +268,4 @@ void xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn, creal_T 
     }
   }
 }
-
-//
-// File trailer for xzlartg.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------

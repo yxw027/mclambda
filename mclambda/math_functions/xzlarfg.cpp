@@ -1,29 +1,12 @@
-//
-// Academic License - for use in teaching, academic research, and meeting
-// course requirements at degree granting institutions only.  Not for
-// government, commercial, or other organizational use.
-// File: xzlarfg.cpp
-//
-// MATLAB Coder version            : 3.3
-// C/C++ source code generated on  : 08-Aug-2019 14:38:13
-//
-
 // Include Files
 #include "rt_nonfinite.h"
-#include "..\LAMBDA.h"
+#include "..\mclambda.h"
 #include "xzlarfg.h"
 #include "schur.h"
 #include "xnrm2.h"
-#include "..\LAMBDA_rtwutil.h"
+#include "..\mclambda_rtwutil.h"
 
-// Function Definitions
-
-//
-// Arguments    : int n
-//                double *alpha1
-//                double x[3]
-// Return Type  : double
-//
+// --------------------------------------------------------------------------
 double xzlarfg(int n, double *alpha1, double x[3])
 {
   double tau;
@@ -81,9 +64,4 @@ double xzlarfg(int n, double *alpha1, double x[3])
 
   return tau;
 }
-
-//
-// File trailer for xzlarfg.cpp
-//
-// [EOF]
-//
+// --------------------------------------------------------------------------
