@@ -26,7 +26,7 @@
 // --------------------------------------------------------------------------
 //                          Function Declarations
 // --------------------------------------------------------------------------
-extern static double rt_remd_snf(double u0, double u1);
+static double rt_remd_snf(double u0, double u1);
 
 extern void mclambda(int n, double ahat[], const double Qahat[], double method, double
             param, const emxArray_char_T *type, double value, emxArray_real_T
