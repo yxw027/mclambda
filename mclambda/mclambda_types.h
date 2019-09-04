@@ -30,14 +30,13 @@
 #define struct_emxArray_real_T
 
 
-struct emxArray_real_T
-{
+typedef struct {
   double *data;
   int *size;
   int allocatedSize;
   int numDimensions;
   boolean_T canFreeData;
-};
+} emxArray_real_T;
 
 #endif
 
