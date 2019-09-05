@@ -2,7 +2,10 @@
     "files.associations": {
         "iostream": "cpp",
         "cmath": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "mclambda.h": "c",
+        "mclambda_emxapi.h": "c",
+        "rtklib.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

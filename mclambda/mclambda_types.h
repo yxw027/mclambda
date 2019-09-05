@@ -51,14 +51,13 @@ typedef struct {
 #ifndef struct_emxArray__common
 #define struct_emxArray__common
 
-struct emxArray__common
-{
+typedef struct {
   void *data;
   int *size;
   int allocatedSize;
   int numDimensions;
   boolean_T canFreeData;
-};
+} emxArray__common;
 
 #endif
 // --------------------------------------------------------------------------
@@ -70,14 +69,13 @@ struct emxArray__common
 #ifndef struct_emxArray_char_T
 #define struct_emxArray_char_T
 
-struct emxArray_char_T
-{
+typedef struct {
   char *data;
   int *size;
   int allocatedSize;
   int numDimensions;
   boolean_T canFreeData;
-};
+} emxArray_char_T;
 
 #endif
 // --------------------------------------------------------------------------
@@ -89,14 +87,13 @@ struct emxArray_char_T
 #ifndef struct_emxArray_int32_T
 #define struct_emxArray_int32_T
 
-struct emxArray_int32_T
-{
+typedef struct { 
   int *data;
   int *size;
   int allocatedSize;
   int numDimensions;
   boolean_T canFreeData;
-};
+} emxArray_int32_T;
 
 #endif
 // --------------------------------------------------------------------------
