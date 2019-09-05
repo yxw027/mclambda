@@ -16,6 +16,7 @@
 *-----------------------------------------------------------------------------*/
 #include "rtklib.h"
 #include "mclambda/mclambda.h"
+#include "mclambda/mclambda_emxAPI.h"
 
 /* constants/macros ----------------------------------------------------------*/
 
@@ -247,16 +248,73 @@ extern int lambda_search(int n, int m, const double *a, const double *Q,
     free(L); free(D);
     return info;
 }
+
+/* MC-LAMBDA RUN FUNCTION ----------------------------------------------------
+* args   : int    n      I  number of float parameters
+*          int    m      I  number of fixed solutions
+*          double *a     I  float parameters (n x 1)
+*          double *Q     I  covariance matrix of float parameters (n x n)
+*          double *F     O  fixed solutions (n x m)
+*          double *s     O  sum of squared residulas of fixed solutions (1 x m)
+* return : status (0:ok,other:error)
+* notes  : matrix stored by column-major order (fortran convension)
+*-----------------------------------------------------------------------------*/
 // --------------------------------------------------------------------------
 //                           MC-LAMBDA RUN FUNCTION
 // --------------------------------------------------------------------------
 extern int mclambda_exec(int n, int m, const double *a, const double *Q, double *F,
                   double *s)
 {
+
+    // Definiton of variables
+    const double *ahat = a;
+    const double *Qahat = Q;
+    double method = 1.0;
+    double param = 1;
+	emxArray_char_T *type;
+    double value = m;
+
+    // Output variables
+    emxArray_real_T *afixed;
+    emxArray_real_T *sqnorm;
+    double *Ps;
+    double *Qzhat;
+    double *Z1;
+    double *nfixed;
+	double *mu;
+
     int info;
     double *L,*D,*Z,*z,*E;
-    
+
+    // Initialize input argument 'type'.
+    static int iv1[2] = { 2, 2 };
+    int idx0;
+    int idx1;
+    // Set the size of the array.
+    // Change this size to the value that the application requires.
+    type = emxCreateND_char_T(2, *(int (*)[2])&iv1[0]);
+
+    // Comment uncomment in order to change the method of calculation
+    /*type->data[0] = 'P';
+    type->data[1] = 'O';
+    type->data[0] = 'M';
+    type->data[1] = 'U';*/
+    type->data[0] = 'N';
+    type->data[1] = 'C';
+    type->data[2] = 'A';
+    type->data[3] = 'N';
+    type->data[4] = 'D';
+    type->data[5] = 'S';
+
+	emxInitArray_real_T(&afixed, 2);
+    emxInitArray_real_T(&sqnorm, 2);
+
+    // Testing
     if (n<=0||m<=0) return -1;
+
+    // Execute MCLAMBDA Routine
+    mclambda(n, ahat, Qahat, method, param, type, value, afixed, sqnorm, &Ps, Qzhat, Z1, &nfixed, &mu);
+    
     L=zeros(n,n); D=mat(n,1); Z=eye(n); z=mat(n,1); E=mat(n,m);
     
     /* LD factorization */
