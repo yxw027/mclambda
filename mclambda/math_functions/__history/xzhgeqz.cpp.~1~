@@ -9,7 +9,7 @@
 void xzhgeqz(int n, const creal_T A[], int ilo, int ihi, int *info, creal_T alpha1
              [], creal_T beta1[])
 {
-  creal_T b_A[9999];
+  creal_T b_A[n*n];
   int i;
   double eshift_re;
   double eshift_im;

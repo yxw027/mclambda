@@ -10,7 +10,7 @@
 // --------------------------------------------------------------------------
 void xgehrd(int n, double a[])
 {
-  double work[9999];
+  double work[n];
   int i;
   int im1n;
   int in;
@@ -18,7 +18,7 @@ void xgehrd(int n, double a[])
   double alpha1;
   double d2;
   double xnorm;
-  double tau[9999];
+  double tau[n-1];
   int knt;
   int i4;
   int k;

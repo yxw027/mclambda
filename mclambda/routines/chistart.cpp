@@ -70,19 +70,19 @@ double chistart(int n, const double D[], const double L[], const double ahat[],
   double Chi2;
   emxArray_real_T *Chi;
   int jBcol;
-  double iQ[n*n];
-  double afloat[n];
+  double iQ[9999];
+  double afloat[9999];
   int j;
-  double A[n*n];
-  int ipiv[n];
+  double A[9999];
+  int ipiv[9999];
   int jp;
   int kBcol;
   int k;
   double dw;
   int i;
-  double afixed[n];
+  double afixed[9999];
   double x;
-  double b_ahat[n];
+  double b_ahat[9999];
 
   // ============================ START PROGRAM ===============================
   // Computation depends on the number of candidates to be computed
@@ -236,7 +236,7 @@ double chistart(int n, const double D[], const double L[], const double ahat[],
     emxFree_real_T(&Chi);
   } else {
     // An approximation for the squared norm is computed
-    float Vn = (2/n) * (pow(M_PI, (n/2)))/(tgamma(n/2));
+    float Vn = (2/n) * (pow(M_PI, (n/2)));//(tgamma(n/2));
     float prodD = 1;
     for (int i=0; i<n; i++){
         prodD *=  D[i];

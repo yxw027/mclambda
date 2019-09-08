@@ -3,7 +3,6 @@
 #include "..\mclambda.h"
 #include "xdhseqr.h"
 #include "xzlarfg.cpp"
-#include "xdlanv2.h"
 
 // --------------------------------------------------------------------------
 int eml_dlahqr(int n, double h[])

@@ -65,21 +65,21 @@ void ssearch(int n1, const double ahat[], const double L[], const double D[],
   int n;
   int loop_ub;
   double Chi2;
-  double dist[n1];
-  double acond[n1];
-  double zcond[n1];
-  double step[n1];
+  double dist[9999];
+  double acond[9999];
+  double zcond[9999];
+  double step[9999];
   boolean_T endsearch;
   unsigned int count;
   double left;
   double newdist;
   double imax;
-  double S[n1*n1];
+  double S[9999];
   double k;
   emxArray_int32_T *iidx;
   emxArray_real_T *b_afixed;
   int ix;
-  double S_data[n1-1];
+  double S_data[9999];
 
   // ============================ START PROGRAM ===============================
   // Initialization

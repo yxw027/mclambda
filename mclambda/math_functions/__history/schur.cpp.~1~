@@ -12,7 +12,7 @@ void schur(int n, double A[], creal_T V[])
 {
   boolean_T p;
   int istart;
-  double Vr[9999];
+  double Vr[n*n];
   int j;
   int i;
   double r;

@@ -47,7 +47,7 @@ extern "C" {
 // --------------------------------------------------------------------------
 static double rt_remd_snf(double u0, double u1);
 
-EXPORT void mclambda(int n, double ahat[], const double Qahat[], double method, double
+EXPORT void mclambda(int n, double ahat[], double Qahat[], double method, double
             param, const emxArray_char_T *type, double value, emxArray_real_T
             *afixed, emxArray_real_T *sqnorm, double *Ps, double Qzhat[],
             double Z[], double *nfixed, double *mu);

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 //                             DECORREL ROUTINE
 // --------------------------------------------------------------------------
 // --------------------------------------------------------------------------
@@ -72,15 +72,15 @@ void decorrel(int n, const double Qahat[], const double ahat[], double Qzhat[],
   int sw;
   int ib;
   int i;
-  double b_Qahat[999];
+  double b_Qahat[9999];
   double delta;
   int loop_ub;
   int br;
-  double L_data[999];
-  double b_iZt[999];
+  double L_data[9999];
+  double b_iZt[9999];
   int ar;
   double lambda;
-  double eta;
+  /*double eta;
   double a[4];
   double b_data[20];
   double C_data[20];
@@ -88,9 +88,6 @@ void decorrel(int n, const double Qahat[], const double ahat[], double Qzhat[],
   int ia;
   double b_L_data[24];
   double c_iZt[24];
-  double y_1[999];
-  double zhat_1[99];
-  double Qzhat_1[999];
 
   // ============================ START PROGRAM ===============================
   // Tests on Inputs ahat and Qahat
@@ -289,35 +286,29 @@ void decorrel(int n, const double Qahat[], const double ahat[], double Qzhat[],
     }
   }
 
-  inv(n, b_Qahat, y_1);
+  inv(n, b_Qahat, Z);
   for (i1 = 0; i1 < n*n; i1++) {
-    y_1[i1] = rt_roundd_snf(y_1[i1]);
+    Z[i1] = rt_roundd_snf(Z[i1]);
   }
 
   for (ib = 0; ib < n; ib++) {
     for (ar = 0; ar < n; ar++) {
       b_Qahat[ib + n * ar] = 0.0;
       for (i1 = 0; i1 < n; i1++) {
-        b_Qahat[ib + n * ar] += y_1[i1 + n * ib] * Qahat[i1 + n * ar];
+        b_Qahat[ib + n * ar] += Z[i1 + n * ib] * Qahat[i1 + n * ar];
       }
     }
 
-    zhat_1[ib] = 0.0;
+    zhat[ib] = 0.0;
     for (ar = 0; ar < n; ar++) {
-      Qzhat_1[ib + n * ar] = 0.0;
+      Qzhat[ib + n * ar] = 0.0;
       for (i1 = 0; i1 < n; i1++) {
-        Qzhat_1[ib + n * ar] += b_Qahat[ib + n * i1] * y_1[i1 + n * ar];
+        Qzhat[ib + n * ar] += b_Qahat[ib + n * i1] * Z[i1 + n * ar];
       }
 
-      zhat_1[ib] += y_1[ar + n * ib] * ahat[ar];
+      zhat[ib] += Z[ar + n * ib] * ahat[ar];
     }
-  }
-
-  for (int j = 0; j < n*n; j++){
-    Z[j] = y_1[j];
-    zhat[j] = zhat_1[j];
-    Qzhat[j] = Qzhat_1[j];
-  }
+  }*/
 }
 // --------------------------------------------------------------------------
 //                              End of decorrel

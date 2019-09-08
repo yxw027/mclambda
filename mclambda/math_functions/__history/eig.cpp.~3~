@@ -13,7 +13,7 @@ void eig(int n, const double A[], creal_T V[])
   boolean_T exitg2;
   creal_T beta1[9999];
   double b_A[9999];
-  creal_T T[9999];
+  creal_T T[n*n];
   int exitg1;
   double V_re;
   double brm;

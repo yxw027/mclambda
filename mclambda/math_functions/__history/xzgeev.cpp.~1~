@@ -13,12 +13,12 @@
 void xzgeev(int n, const double A[], int *info, creal_T alpha1[], creal_T beta1[])
 {
   int i;
-  creal_T At[9999];
+  creal_T At[n*n];
   double anrm;
   boolean_T ilascl;
   double anrmto;
   int ihi;
-  int rscale[9999];
+  int rscale[n];
   for (i = 0; i < n*n; i++) {
     At[i].re = A[i];
     At[i].im = 0.0;

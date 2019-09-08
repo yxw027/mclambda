@@ -11,9 +11,9 @@ void eig(int n, const double A[], creal_T V[])
   int info;
   int i;
   boolean_T exitg2;
-  creal_T beta1[9999];
-  double b_A[9999];
-  creal_T T[9999];
+  creal_T beta1[n];
+  double b_A[n*n];
+  creal_T T[n*n];
   int exitg1;
   double V_re;
   double brm;

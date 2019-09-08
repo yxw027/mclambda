@@ -58,8 +58,7 @@
 //     Qzhat: Variance-covariance matrix of decorrelated ambiguities
 //            (corresponding to fixed subset in case of PAR).
 //         Z: Transformation matrix with
-//            - dimension (n x n) for methods 1-4, 6
-//            - dimension (n x nfixed) for method 5 (PAR).
+//            - dimension (n x n)
 //    nfixed: Number of fixed ambiguities
 //            - with methods 1 to 4: will always be equal to n
 //            - with method 5 (ILS + Ratio test): will be equal to n if fixed
@@ -69,6 +68,7 @@
 // --------------------------------------------------------------------------
 
 // Include Files
+//#include "rtklib.h"
 #include <iostream>
 #include "math_functions\upper.cpp"
 #include "math_functions\erfc.cpp"
@@ -151,7 +151,7 @@ static double rt_remd_snf(double u0, double u1)
 // Return       : void
 //
 // --------------------------------------------------------------------------
-void mclambda(int n, double ahat[], const double Qahat[], double method, double
+void mclambda(int n, double ahat[], double Qahat[], double method, double
             param, const emxArray_char_T *type, double value, emxArray_real_T
             *afixed, emxArray_real_T *sqnorm, double *Ps, double Qzhat[],
             double Z[], double *nfixed, double *mu)
@@ -174,22 +174,22 @@ void mclambda(int n, double ahat[], const double Qahat[], double method, double
   double b_nfixed;
   int exitg2;
   int ib;
-  creal_T unusedExpr[n];
-  double x[n];
-  double incr[n];
-  double L[n*n];
-  double afcond[n];
-  double iZt[n*n];
+  creal_T unusedExpr[999];
+  double x[999];
+  double incr[999];
+  double L[999];
+  double afcond[999];
+  double iZt[999];
   double b_Ps;
-  double S[n];
+  double S[999];
   emxArray_real_T *b_zfixed;
   emxArray_real_T *b_sqnorm;
   emxArray_real_T *zpar;
   unsigned int unnamed_idx_1;
   int ic;
   int ia;
-  double b_afixed[n];
-  double S_data[n-1];
+  double b_afixed[999];
+  double S_data[999];
   double table_data[1984];
 
   // ============================= DATA =====================================
@@ -741,7 +741,7 @@ void mclambda(int n, double ahat[], const double Qahat[], double method, double
   // Tests on Inputs ahat and Qahat
   // - Is the Q-matrix symmetric?
   // - Is the Q-matrix positive-definite?
-  eig(n, Qahat, unusedExpr);
+  //eig(n, Qahat, unusedExpr);
 
   // Remove integer numbers from float solution, so that all values 
   // are between -1 and 1 (for computational convenience only)
@@ -1011,6 +1011,15 @@ void mclambda(int n, double ahat[], const double Qahat[], double method, double
   *Ps = b_Ps;
   *nfixed = b_nfixed;
   *mu = b_mu;
+  /*FILE *f111 = fopen("file2.txt", "w");
+  for (ar = 0; ar < n; ar++) {
+    fprintf(f111, "Amb: %f\n", afixed->data[ar]);
+  }
+  fprintf(f111, "Method: %e\n", method);
+  fprintf(f111, "Param: %e\n", param);
+  fprintf(f111, "Type: %d\n", type->data[0]);
+  fprintf(f111, "Value: %e\n", value);
+  fclose(f111);*/
 }
 // --------------------------------------------------------------------------
 //                              End of mclambda

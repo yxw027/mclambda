@@ -5,7 +5,16 @@
         "ostream": "cpp",
         "mclambda.h": "c",
         "mclambda_emxapi.h": "c",
-        "rtklib.h": "c"
+        "rtklib.h": "c",
+        "rt_nonfinite.cpp": "c",
+        "mclambda.cpp": "c",
+        "mclambda_terminate.cpp": "c",
+        "mclambda_emxapi.cpp": "c",
+        "mclambda_initialize.h": "c",
+        "mclambda_emxutil.h": "c",
+        "eig.cpp": "c",
+        "schur.h": "c",
+        "xzgeev.cpp": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

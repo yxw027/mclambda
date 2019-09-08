@@ -66,20 +66,20 @@ void lsearch(int n1, const double ahat[], const double L[], const double D[],
 {
   // ============================= VARIABLES ================================
   double Chi2;
-  double Linv[n1*n1];
+  double Linv[999];
   int i;
-  double right[n1+1];
-  double Dinv[n1];
-  double left[n1+1];
+  double right[999];
+  double Dinv[999];
+  double left[999];
   int qEnd;
-  double dq[n1];
+  double dq[9999];
   int endsearch;
   unsigned int ncan;
   int iold;
   int i2;
-  double lef[n1];
-  double distl[n1];
-  double endd[n1];
+  double lef[999];
+  double distl[999];
+  double endd[999];
   emxArray_real_T *tmp;
   emxArray_real_T *ndx;
   int j;
@@ -94,7 +94,7 @@ void lsearch(int n1, const double ahat[], const double L[], const double D[],
   int col_size[2];
   int k;
   emxArray_int32_T *idx;
-  int col_data[n1+1];
+  int col_data[9999];
   emxArray_int32_T *iwork;
   emxArray_real_T *ycol;
 
