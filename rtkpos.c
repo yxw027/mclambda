@@ -1447,6 +1447,10 @@ static int resamb_LAMBDA(rtk_t *rtk, double *bias, double *xa)
     trace(3,"resamb_LAMBDA : nx=%d\n",nx);
     
     rtk->sol.ratio=0.0;
+
+    if (rtk->opt.modear==ARMODE_MCLAMBDA){ // Add condition to avoid conflicts between lambda and MCLAMBDA
+        return 0;
+    }
     
     if (rtk->opt.mode<=PMODE_DGPS||rtk->opt.modear==ARMODE_OFF||
         rtk->opt.thresar[0]<1.0) {
@@ -1537,11 +1541,11 @@ static int resamb_MCLAMBDA(rtk_t *rtk, double *bias, double *xa)
     trace(3,"resamb_MCLAMBDA : nx=%d\n",nx);
     
     rtk->sol.ratio=0.0;
-    
-    if (rtk->opt.mode<=PMODE_DGPS||rtk->opt.modear==ARMODE_OFF||
-        rtk->opt.thresar[0]<1.0) {
+
+    if (rtk->opt.modear!=ARMODE_MCLAMBDA){ // Add condition to avoid conflicts between lambda and MCLAMBDA
         return 0;
     }
+    
     /* single to double-difference transformation matrix (D') */
     D=zeros(nx,nx);
     if ((nb=ddmat(rtk,D))<=0) {
@@ -1784,7 +1788,7 @@ static int relpos(rtk_t *rtk, const obsd_t *obs, int nu, int nr,
         }
     }
     /* resolve integer ambiguity by LAMBDA */
-    else if (stat!=SOLQ_NONE&&resamb_LAMBDA(rtk,bias,xa)>1&&rtk->opt.modear!=ARMODE_MCLAMBDA) { // Add condition to avoid conflicts between lambda and MCLAMBDA
+    else if (stat!=SOLQ_NONE&&resamb_LAMBDA(rtk,bias,xa)>1) { 
         
         if (zdres(0,obs,nu,rs,dts,var,svh,nav,xa,opt,0,y,e,azel)) {
             
@@ -1808,18 +1812,13 @@ static int relpos(rtk_t *rtk, const obsd_t *obs, int nu, int nr,
     // resolve integer ambiguity by MC-LAMBDA
     // code added after
     // ----------------------------------------------------------
-    else if (stat!=SOLQ_NONE&&resamb_MCLAMBDA(rtk,bias,xa)>1&&rtk->opt.modear==ARMODE_MCLAMBDA) {  
+    else if (stat!=SOLQ_NONE&&resamb_MCLAMBDA(rtk,bias,xa)>1) {  
         if (zdres(0,obs,nu,rs,dts,var,svh,nav,xa,opt,0,y,e,azel)) {       
             /* post-fit reisiduals for fixed solution */
             nv=ddres(rtk,nav,dt,xa,NULL,sat,y,e,azel,iu,ir,ns,v,NULL,R,vflg);      
             /* validation of fixed solution */
             if (valpos(rtk,v,R,vflg,nv,4.0)) {
                 stat=SOLQ_FIX;
-                /* hold integer ambiguity */
-                if (++rtk->nfix>=rtk->opt.minfix&&
-                    rtk->opt.modear==ARMODE_MCLAMBDA) {
-                    holdamb(rtk,xa);
-                }
             }
         }
     }
