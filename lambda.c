@@ -15,8 +15,8 @@
 *           2015/05/31 1.1 add api lambda_reduction(), lambda_search()
 *-----------------------------------------------------------------------------*/
 #include "rtklib.h"
-#include "mclambda/mclambda.h"
-#include "mclambda/mclambda_emxAPI.h"
+#include "mclambda\mclambda.h"
+#include "mclambda\mclambda_emxAPI.h"
 
 /* constants/macros ----------------------------------------------------------*/
 
@@ -165,7 +165,8 @@ static int search(int n, int m, const double *L, const double *D,
 extern int lambda(int n, int m, const double *a, const double *Q, double *F,
                   double *s)
 {
-    int info;
+    FILE *f = fopen("file.txt", "w");
+    int info, i;
     double *L,*D,*Z,*z,*E;
     
     if (n<=0||m<=0) return -1;
@@ -185,6 +186,16 @@ extern int lambda(int n, int m, const double *a, const double *Q, double *F,
         }
     }
     free(L); free(D); free(Z); free(z); free(E);
+
+    // Print only for testing
+    for (i=0; i<n; i++){
+        fprintf(f, "Amb: %f\n", a[i]);
+        fprintf(f, "SolAmb: %f\n", F[i]);
+    }
+    fprintf(f, "S1: %f\n", s[0]);
+    fprintf(f, "S2: %f\n", s[1]);
+    fclose(f);
+
     return info;
 }
 /* lambda reduction ------------------------------------------------------------
@@ -266,25 +277,29 @@ extern int mclambda_exec(int n, int m, const double *a, const double *Q, double 
                   double *s)
 {
 
+    FILE *f = fopen("file.txt", "w");
+    // Return variable definition
+    int info;
+    int i, j;
+
     // Definiton of variables
-    const double *ahat = a;
-    const double *Qahat = Q;
-    double method = 1.0;
-    double param = 1;
+    //const double *ahat = a;
+    //const double *Qahat = Q;
+    double ahat[999]; 
+    double Qahat[999];
+    double method;
+    double param;
 	emxArray_char_T *type;
-    double value = m;
+    double value;
 
     // Output variables
     emxArray_real_T *afixed;
     emxArray_real_T *sqnorm;
-    double *Ps;
-    double *Qzhat;
-    double *Z1;
-    double *nfixed;
-	double *mu;
-
-    int info;
-    double *L,*D,*Z,*z,*E;
+    double Ps;
+    double Qzhat[999];
+    double Z1[999];
+    double nfixed;
+	double mu;
 
     // Initialize input argument 'type'.
     static int iv1[2] = { 2, 2 };
@@ -292,19 +307,42 @@ extern int mclambda_exec(int n, int m, const double *a, const double *Q, double 
     int idx1;
     // Set the size of the array.
     // Change this size to the value that the application requires.
+    method = 1.0;
+    param = 1.0;
+    value = 2.0;
     type = emxCreateND_char_T(2, *(int (*)[2])&iv1[0]);
 
+    fprintf(f, "NAmb: %d\n", n);
+    for (i=0; i<n; i++){
+        ahat[i] = a[i];
+        fprintf(f, "Amb: %f\n", a[i]);
+    }
+
+    /* print some text */
+    fprintf(f, "Ambiguities\n"); 
+
+    for (i=0; i<n; i++){
+        for (j=0; j<n; j++){
+            Qahat[i + j*n] = Q[i + j*n];
+        }
+        fprintf(f, "VC: %f\n", Qahat[i]);
+    }
+    /*for (i=0; i<n*n; i++){
+        Qahat[i] = Q[i];
+    }*/
+    fprintf(f, "Variance-Covariance\n"); 
+
     // Comment uncomment in order to change the method of calculation
-    /*type->data[0] = 'P';
-    type->data[1] = 'O';
-    type->data[0] = 'M';
-    type->data[1] = 'U';*/
-    type->data[0] = 'N';
-    type->data[1] = 'C';
-    type->data[2] = 'A';
-    type->data[3] = 'N';
-    type->data[4] = 'D';
-    type->data[5] = 'S';
+    type->data[0] = 'P';
+    //type->data[1] = 'O';
+    //type->data[0] = 'M';
+    //type->data[1] = 'U';
+    //type->data[0] = 'N';
+    //type->data[1] = 'C';
+    //type->data[2] = 'A';
+    //type->data[3] = 'N';
+    //type->data[4] = 'D';
+    //type->data[5] = 'S';
 
 	emxInitArray_real_T(&afixed, 2);
     emxInitArray_real_T(&sqnorm, 2);
@@ -315,22 +353,19 @@ extern int mclambda_exec(int n, int m, const double *a, const double *Q, double 
     // Execute MCLAMBDA Routine
     mclambda(n, ahat, Qahat, method, param, type, value, afixed, sqnorm, &Ps, Qzhat, Z1, &nfixed, &mu);
     
-    L=zeros(n,n); D=mat(n,1); Z=eye(n); z=mat(n,1); E=mat(n,m);
-    
-    /* LD factorization */
-    if (!(info=LD(n,Q,L,D))) {
-        
-        /* lambda reduction */
-        reduction(n,L,D,Z);
-        matmul("TN",n,1,n,1.0,Z,a,0.0,z); /* z=Z'*a */
-        
-        /* mlambda search */
-        if (!(info=search(n,m,L,D,z,E,s))) {
-            
-            info=solve("T",Z,E,n,m,F); /* F=Z'\E */
-        }
+    //free(L); free(D); free(Z); free(z); free(E);
+
+    // Preparing data to return (Print in file only for tests)
+    s = sqnorm->data;
+    for (i=0; i<n; i++){
+        F[i] = afixed->data[i];
+        fprintf(f, "SolAmb: %f\n", F[i]);
     }
-    free(L); free(D); free(Z); free(z); free(E);
+    fprintf(f, "S1: %f\n", s[0]);
+    fprintf(f, "S2: %f\n", s[1]);
+    fclose(f);
+    info = 0;
+
     return info;
 }
 // --------------------------------------------------------------------------
