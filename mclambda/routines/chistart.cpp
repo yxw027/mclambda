@@ -70,19 +70,19 @@ double chistart(int n, const double D[], const double L[], const double ahat[],
   double Chi2;
   emxArray_real_T *Chi;
   int jBcol;
-  double iQ[9999];
-  double afloat[9999];
+  double iQ[200];
+  double afloat[99];
   int j;
-  double A[9999];
-  int ipiv[9999];
+  double A[99];
+  int ipiv[99];
   int jp;
   int kBcol;
   int k;
   double dw;
   int i;
-  double afixed[9999];
+  double afixed[99];
   double x;
-  double b_ahat[9999];
+  double b_ahat[99];
 
   // ============================ START PROGRAM ===============================
   // Computation depends on the number of candidates to be computed
