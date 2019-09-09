@@ -402,6 +402,13 @@ extern "C" {
 #define ARMODE_TCAR 7                   /* AR mode: triple carrier ar */
 #define ARMODE_MCLAMBDA 5               /* AR mode: MCLAMBDA Resolution ar */
 
+#define MCLAMBDA_ILS_SAS 0              /* ILS search-and-shrink ("ncands" = 10) */
+#define MCLAMBDA_ILS_ES 1               /* ILS enum in search ("ncands" = 10) */
+#define MCLAMBDA_IRM 2                  /* Integer rounding method */
+#define MCLAMBDA_IB 3                   /* Integer bootstrapping method */
+#define MCLAMBDA_ILS_PO 4               /* ILS Ratio Test ("PO" = 0.01) */
+#define MCLAMBDA_ILS_MU 5               /* ILS Ratio Test ("MU" = 0.5) */
+
 #define SBSOPT_LCORR 1                  /* SBAS option: long term correction */
 #define SBSOPT_FCORR 2                  /* SBAS option: fast correction */
 #define SBSOPT_ICORR 4                  /* SBAS option: ionosphere correction */
@@ -1043,6 +1050,7 @@ typedef struct {        /* processing options type */
     snrmask_t snrmask;  /* SNR mask */
     int sateph;         /* satellite ephemeris/clock (EPHOPT_???) */
     int modear;         /* AR mode (0:off,1:continuous,2:instantaneous,3:fix and hold,4:ppp-ar) */
+    int mcopt;          /* Options for MCLAMBDA ambiguity resolution */
     int glomodear;      /* GLONASS AR mode (0:off,1:on,2:auto cal,3:ext cal) */
     int bdsmodear;      /* BeiDou AR mode (0:off,1:on) */
     int maxout;         /* obs outage count to reset bias */
@@ -1805,7 +1813,7 @@ EXPORT void strsetproxy(const char *addr);
 /* integer ambiguity resolution ----------------------------------------------*/
 EXPORT int lambda(int n, int m, const double *a, const double *Q, double *F,
                   double *s);
-EXPORT int mclambda_exec(int n, int m, const double *a, const double *Q, double *F,
+EXPORT int mclambda_exec(rtk_t *rtk, int n, int m, const double *a, const double *Q, double *F,
                   double *s);
 EXPORT int lambda_reduction(int n, const double *Q, double *Z);
 EXPORT int lambda_search(int n, int m, const double *a, const double *Q,
