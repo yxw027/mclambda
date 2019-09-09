@@ -1,0 +1,18 @@
+NAmb: 4
+Ambiguities
+Amb: 19.322643
+Amb: -8.475194
+Amb: 13.240501
+Amb: -37.021413
+Variance-Covariance
+VC: 0.011114
+VC: 0.005563
+VC: 0.011085
+VC: -0.000670
+Method ILS SAS
+SolAmb: 20.000000
+SolAmb: -8.000000
+SolAmb: 14.000000
+SolAmb: -37.000000
+S1: 44.210074
+S2: 78.745506
