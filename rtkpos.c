@@ -1568,7 +1568,7 @@ static int resamb_MCLAMBDA(rtk_t *rtk, double *bias, double *xa)
     trace(4,"N(0)="); tracemat(4,y+na,1,nb,10,3);
     
     /* MCLAMBDA resolution */
-    if (!(info=mclambda_exec(nb,2,y+na,Qb,b,s))) {
+    if (!(info=mclambda_exec(rtk,nb,2,y+na,Qb,b,s))) {
         
         trace(4,"N(1)="); tracemat(4,b   ,1,nb,10,3);
         trace(4,"N(2)="); tracemat(4,b+nb,1,nb,10,3);
