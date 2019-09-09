@@ -273,7 +273,7 @@ extern int lambda_search(int n, int m, const double *a, const double *Q,
 // --------------------------------------------------------------------------
 //                           MC-LAMBDA RUN FUNCTION
 // --------------------------------------------------------------------------
-extern int mclambda_exec(int n, int m, const double *a, const double *Q, double *F,
+extern int mclambda_exec(rtk_t *rtk, int n, int m, const double *a, const double *Q, double *F,
                   double *s)
 {
 
@@ -281,10 +281,9 @@ extern int mclambda_exec(int n, int m, const double *a, const double *Q, double 
     // Return variable definition
     int info;
     int i, j;
+    int rtk_opt;
 
-    // Definiton of variables
-    //const double *ahat = a;
-    //const double *Qahat = Q;
+    // Definiton of variables MCLAMBDA
     double ahat[999]; 
     double Qahat[999];
     double method;
@@ -292,7 +291,7 @@ extern int mclambda_exec(int n, int m, const double *a, const double *Q, double 
 	emxArray_char_T *type;
     double value;
 
-    // Output variables
+    // Output variables MCLAMBDA
     emxArray_real_T *afixed;
     emxArray_real_T *sqnorm;
     double Ps;
@@ -307,21 +306,18 @@ extern int mclambda_exec(int n, int m, const double *a, const double *Q, double 
     int idx1;
     // Set the size of the array.
     // Change this size to the value that the application requires.
-    method = 2.0;
-    param = 0.0;
-    value = 0.95;
     type = emxCreateND_char_T(2, *(int (*)[2])&iv1[0]);
 
+    // Format input data
     fprintf(f, "NAmb: %d\n", n);
-    for (i=0; i<n; i++){
+    fprintf(f, "Ambiguities\n"); 
+    for (i=0; i<n; i++){ // Building ambiguity vector
         ahat[i] = a[i];
         fprintf(f, "Amb: %f\n", a[i]);
     }
 
-    /* print some text */
-    fprintf(f, "Ambiguities\n"); 
-
-    for (i=0; i<n; i++){
+    fprintf(f, "Variance-Covariance\n");
+    for (i=0; i<n; i++){ // Building VC ambiguity matrix
         for (j=0; j<n; j++){
             Qahat[i + j*n] = Q[i + j*n];
         }
@@ -329,9 +325,47 @@ extern int mclambda_exec(int n, int m, const double *a, const double *Q, double 
     }
     /*for (i=0; i<n*n; i++){
         Qahat[i] = Q[i];
-    }*/
-    fprintf(f, "Variance-Covariance\n"); 
+    }*/ 
 
+    // Obtain options from data input
+    rtk_opt = rtk->opt.mcopt;
+    if (rtk_opt == MCLAMBDA_ILS_SAS){
+        method = 1.0;
+        param = 1.0;
+        value = 10;
+        fprintf(f, "Method ILS SAS\n");
+    } else if (rtk_opt == MCLAMBDA_ILS_ES){
+        method = 2.0;
+        param = 1.0;
+        value = 10;
+        fprintf(f, "Method ILS ES\n");
+    } else if (rtk_opt == MCLAMBDA_IRM){
+        method = 3.0;
+        param = 0.0;
+        value = 0;
+        fprintf(f, "Method IRM\n");
+    } else if (rtk_opt == MCLAMBDA_IB){
+        method = 4.0;
+        param = 0.0;
+        value = 0;
+        fprintf(f, "Method IB\n");
+    } else if (rtk_opt == MCLAMBDA_ILS_PO){
+        method = 5.0;
+        param = 1.0;
+        value = 0.01;
+        fprintf(f, "Method ILS PO\n");
+    } else if (rtk_opt == MCLAMBDA_ILS_MU){
+        method = 5.0;
+        param = 1.0;
+        value = 0.5;
+        fprintf(f, "Method ILS MU\n");
+    } else{ 
+        method = 1.0;
+        param = 1.0;
+        value = 10;
+        fprintf(f, "Method ILS SAS default\n");
+    }
+    
     // Comment uncomment in order to change the method of calculation
     //type->data[0] = 'P';
     //type->data[1] = 'O';
