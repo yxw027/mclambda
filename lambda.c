@@ -165,7 +165,7 @@ static int search(int n, int m, const double *L, const double *D,
 extern int lambda(int n, int m, const double *a, const double *Q, double *F,
                   double *s)
 {
-    FILE *f = fopen("file.txt", "w");
+    //FILE *f = fopen("file.txt", "w");
     int info, i;
     double *L,*D,*Z,*z,*E;
     
@@ -188,13 +188,13 @@ extern int lambda(int n, int m, const double *a, const double *Q, double *F,
     free(L); free(D); free(Z); free(z); free(E);
 
     // Print only for testing
-    for (i=0; i<n; i++){
+    /*for (i=0; i<n; i++){
         fprintf(f, "Amb: %f\n", a[i]);
         fprintf(f, "SolAmb: %f\n", F[i]);
     }
     fprintf(f, "S1: %f\n", s[0]);
     fprintf(f, "S2: %f\n", s[1]);
-    fclose(f);
+    fclose(f);*/
 
     return info;
 }
@@ -307,9 +307,9 @@ extern int mclambda_exec(int n, int m, const double *a, const double *Q, double 
     int idx1;
     // Set the size of the array.
     // Change this size to the value that the application requires.
-    method = 1.0;
-    param = 1.0;
-    value = 2.0;
+    method = 2.0;
+    param = 0.0;
+    value = 0.95;
     type = emxCreateND_char_T(2, *(int (*)[2])&iv1[0]);
 
     fprintf(f, "NAmb: %d\n", n);
@@ -333,9 +333,9 @@ extern int mclambda_exec(int n, int m, const double *a, const double *Q, double 
     fprintf(f, "Variance-Covariance\n"); 
 
     // Comment uncomment in order to change the method of calculation
-    type->data[0] = 'P';
+    //type->data[0] = 'P';
     //type->data[1] = 'O';
-    //type->data[0] = 'M';
+    type->data[0] = 'M';
     //type->data[1] = 'U';
     //type->data[0] = 'N';
     //type->data[1] = 'C';
@@ -356,7 +356,13 @@ extern int mclambda_exec(int n, int m, const double *a, const double *Q, double 
     //free(L); free(D); free(Z); free(z); free(E);
 
     // Preparing data to return (Print in file only for tests)
-    s = sqnorm->data;
+    if (method==3.0 || method==4.0){
+        s[0] = 0;
+        s[1] = 0;
+    } else{
+        s = sqnorm->data;
+    }
+
     for (i=0; i<n; i++){
         F[i] = afixed->data[i];
         fprintf(f, "SolAmb: %f\n", F[i]);
