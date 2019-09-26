@@ -343,11 +343,11 @@ extern "C" {
 #define PMODE_KINEMA 2                  /* positioning mode: kinematic */
 #define PMODE_STATIC 3                  /* positioning mode: static */
 #define PMODE_MOVEB  4                  /* positioning mode: moving-base */
-#define PMODE_FIXED  5                  /* positioning mode: fixed */
-#define PMODE_PPP_KINEMA 6              /* positioning mode: PPP-kinemaric */
-#define PMODE_PPP_STATIC 7              /* positioning mode: PPP-static */
-#define PMODE_PPP_FIXED 8               /* positioning mode: PPP-fixed */
-#define PMODE_MOVEB_MCLAMBDA 9          /* positioning mode: moving-base mclambda */
+#define PMODE_MOVEB_MCLAMBDA 5          /* positioning mode: moving-base mclambda */
+#define PMODE_FIXED  6                  /* positioning mode: fixed */
+#define PMODE_PPP_KINEMA 7              /* positioning mode: PPP-kinemaric */
+#define PMODE_PPP_STATIC 8              /* positioning mode: PPP-static */
+#define PMODE_PPP_FIXED 9               /* positioning mode: PPP-fixed */
 
 #define SOLF_LLH    0                   /* solution format: lat/lon/height */
 #define SOLF_XYZ    1                   /* solution format: x/y/z-ecef */

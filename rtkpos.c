@@ -1270,7 +1270,7 @@ static int ddres(rtk_t *rtk, const nav_t *nav, double dt, const double *x,
     /* end of system loop */
     
     /* baseline length constraint for moving baseline */
-    if (opt->mode==PMODE_MOVEB&&constbl(rtk,x,P,v,H,Ri,Rj,nv)) {
+    if ((opt->mode==PMODE_MOVEB||opt->mode==PMODE_MOVEB_MCLAMBDA)&&constbl(rtk,x,P,v,H,Ri,Rj,nv)) {
         vflg[nv++]=3<<4;
         nb[b++]++;
     }
@@ -1670,6 +1670,7 @@ static int valpos(rtk_t *rtk, const double *v, const double *R, const int *vflg,
 static int relpos(rtk_t *rtk, const obsd_t *obs, int nu, int nr,
                   const nav_t *nav)
 {
+    //FILE *f1 = fopen("file1.txt", "w");
     prcopt_t *opt=&rtk->opt;
     gtime_t time=obs[0].time;
     double *rs,*dts,*var,*y,*e,*azel,*v,*H,*R,*xp,*Pp,*xa,*bias,dt;
@@ -1724,9 +1725,13 @@ static int relpos(rtk_t *rtk, const obsd_t *obs, int nu, int nr,
     v=mat(ny,1); H=zeros(rtk->nx,ny); R=mat(ny,ny); bias=mat(rtk->nx,1);
     
     /* add 2 iterations for baseline-constraint moving-base */
-    niter=opt->niter+(opt->mode==PMODE_MOVEB&&opt->baseline[0]>0.0?2:0);
+    niter=opt->niter+((opt->mode==PMODE_MOVEB||opt->mode==PMODE_MOVEB_MCLAMBDA)&&opt->baseline[0]>0.0?2:0);
     
     for (i=0;i<niter;i++) {
+        /*for (i=0; i<15; i++){
+            fprintf(f1, "Before: %f\n", xp[i]);
+        }
+        fclose(f1);*/
         /* undifferenced residuals for rover */
         if (!zdres(0,obs,nu,rs,dts,var,svh,nav,xp,opt,0,y,e,azel)) {
             errmsg(rtk,"rover initial position error\n");
@@ -2007,7 +2012,7 @@ extern int rtkpos(rtk_t *rtk, const obsd_t *obs, int n, const nav_t *nav)
     
     /* set base staion position */
     if (opt->refpos<=POSOPT_RINEX&&opt->mode!=PMODE_SINGLE&&
-        opt->mode!=PMODE_MOVEB) {
+        opt->mode!=PMODE_MOVEB&&opt->mode!=PMODE_MOVEB_MCLAMBDA) {
         for (i=0;i<6;i++) rtk->rb[i]=i<3?opt->rb[i]:0.0;
     }
     /* count rover/base station observations */
@@ -2075,6 +2080,43 @@ extern int rtkpos(rtk_t *rtk, const obsd_t *obs, int n, const nav_t *nav)
             return 1;
         }
     }
+
+    // ----------------------------------------------------------
+    // resolving positioning by MC-LAMBDA
+    // code added after
+    // ----------------------------------------------------------
+    if (opt->mode==PMODE_MOVEB_MCLAMBDA) { /*  moving baseline */
+        
+        /* estimate position/velocity of base station */
+        if (!pntpos(obs+nu,nr,nav,&rtk->opt,&solb,NULL,NULL,msg)) {
+            errmsg(rtk,"base station position error (%s)\n",msg);
+            return 0;
+        }
+        rtk->sol.age=(float)timediff(rtk->sol.time,solb.time);
+        
+        if (fabs(rtk->sol.age)>TTOL_MOVEB) {
+            errmsg(rtk,"time sync error for moving-base (age=%.1f)\n",rtk->sol.age);
+            return 0;
+        }
+        for (i=0;i<6;i++) rtk->rb[i]=solb.rr[i];
+        
+        /* time-synchronized position of base station */
+        for (i=0;i<3;i++) rtk->rb[i]+=rtk->rb[i+3]*rtk->sol.age;
+    }
+    else {
+        rtk->sol.age=(float)timediff(obs[0].time,obs[nu].time);
+        
+        if (fabs(rtk->sol.age)>opt->maxtdiff) {
+            errmsg(rtk,"age of differential error (age=%.1f)\n",rtk->sol.age);
+            outsolstat(rtk);
+            return 1;
+        }
+    }
+    // ----------------------------------------------------------
+    // End of resolving positioning by MC-LAMBDA
+    // code added after
+    // ----------------------------------------------------------
+
     /* relative potitioning */
     relpos(rtk,obs,nu,nr,nav);
     outsolstat(rtk);

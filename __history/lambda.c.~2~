@@ -165,8 +165,7 @@ static int search(int n, int m, const double *L, const double *D,
 extern int lambda(int n, int m, const double *a, const double *Q, double *F,
                   double *s)
 {
-    //FILE *f = fopen("file.txt", "w");
-    int info, i;
+    int info;
     double *L,*D,*Z,*z,*E;
     
     if (n<=0||m<=0) return -1;
@@ -186,16 +185,6 @@ extern int lambda(int n, int m, const double *a, const double *Q, double *F,
         }
     }
     free(L); free(D); free(Z); free(z); free(E);
-
-    // Print only for testing
-    /*for (i=0; i<n; i++){
-        fprintf(f, "Amb: %f\n", a[i]);
-        fprintf(f, "SolAmb: %f\n", F[i]);
-    }
-    fprintf(f, "S1: %f\n", s[0]);
-    fprintf(f, "S2: %f\n", s[1]);
-    fclose(f);*/
-
     return info;
 }
 /* lambda reduction ------------------------------------------------------------
@@ -273,30 +262,40 @@ extern int lambda_search(int n, int m, const double *a, const double *Q,
 // --------------------------------------------------------------------------
 //                           MC-LAMBDA RUN FUNCTION
 // --------------------------------------------------------------------------
-extern int mclambda_exec(rtk_t *rtk, int n, int m, const double *a, const double *Q, double *F,
+extern int mclambda_exec(int n, int m, const double *a, const double *Q, double *F,
                   double *s)
 {
 
-    //FILE *f = fopen("file.txt", "w");
-    // Return variable definition
     int info;
-    int i, j;
-    int rtk_opt;
+    double *L,*D,*Z,*z,*E;
 
-    // Definiton of variables MCLAMBDA
-    double ahat[999]; 
-    double Qahat[999];
-    double method;
-    double param;
+    // Definiton of variables
+    double ahat[12] = { -28490.8566886116, 65752.6299198198, 38830.3666554972, 5003.70833517778,
+          -29196.0699104593, -297.658932458787, -22201.0284440701, 51235.8374755528,
+          30257.7809603224, 3899.40332138829, -22749.1853575113, -159.278779870217 };
+  double Qahat[144] = { 19068.8559508787, -15783.9722820370, -17334.2005875975, 14411.9239749603, 10055.7170089359, -14259.2952903872, 14858.8484050976, -12299.1993741839, -13507.1694819930, 11230.0704356810, 7835.62344938376, -11111.1393808147, 
+          -15783.9722820370, 59027.7038409815, 38142.6927531102, 562.717388024645, -13830.0855960676, 27373.4263013019, -12299.1993747356, 45995.6129934030, 29721.5785731468, 438.480887460148, -10776.6902686912, 21329.9423774758,
+          -17334.2005875975, 38142.6927531102, 28177.5653893528, -7000.50220497045, -11695.8674059306, 21886.1680630532, -13507.1694826246, 29721.5785738846, 21956.5440705992, -5454.93697674992, -9113.66310734779, 17054.1567378091,
+          14411.9239749603, 562.717388024645, -7000.50220497045, 15605.5082283690, 5039.70281815470, -9648.96530646004, 11230.0704356773, 438.480887731461, -5454.93697653627, 12160.1358938811, 3927.04096307733, -7518.67445855756,
+          10055.7170089359, -13830.0855960676, -11695.8674059306, 5039.70281815470, 6820.77250679480, -6880.24051213224, 7835.62344947055, -10776.6902682086, -9113.66310687634, 3927.04096320258, 5314.88728015545, -5361.22656658847,
+          -14259.2952903872, 27373.4263013019, 21886.1680630532, -9648.96530646004, -6880.24051213224, 23246.5489626945, -11111.1393809211, 21329.9423779274, 17054.1567375591, -7518.67445829957, -5361.22656681708, 18114.1936088811,
+          14858.8484050976, -12299.1993747356, -13507.1694826246, 11230.0704356773, 7835.62344947055, -11111.1393809211, 11578.3237340013, -9583.79156943782, -10525.0669778554, 8750.70438611838, 6105.68076067050, -8658.03053539344,
+          -12299.1993741839, 45995.6129934030, 29721.5785738846, 438.480887731461, -10776.6902682086, 21329.9423779274, -9583.79156943782, 35840.7376978353, 23159.6717654859, 341.673569568934, -8397.42083743563, 16620.7344703582,
+          -13507.1694819930, 29721.5785731468, 21956.5440705992, -5454.93697653627, -9113.66310687634, 17054.1567375591, -10525.0669778554, 23159.6717654859, 17108.9956804894, -4250.60009053988, -7101.55551676305, 13288.9534523001,
+          11230.0704356810, 438.480887460148, -5454.93697674992, 12160.1358938811, 3927.04096320258, -7518.67445829957, 8750.70438611838, 341.673569568934, -4250.60009053988, 9475.43086798586, 3060.03207008500, -5858.70721928591,
+          7835.62344938376, -10776.6902686912, -9113.66310734779, 3927.04096307733, 5314.88728015545, -5361.22656681708, 6105.68076067050, -8397.42083743563, -7101.55551676305, 3060.03207008500, 4141.47090961885, -4177.57899193454,
+          -11111.1393808147, 21329.9423774758, 17054.1567378091, -7518.67445855756, -5361.22656658847, 18114.1936088811, -8658.03053539344, 16620.7344703582, 13288.9534523001, -5858.70721928591, -4177.57899193454, 14114.9563601479 };
+    double method = 1.0;
+    double param = 1;
 	emxArray_char_T *type;
-    double value;
+    double value = m;
 
-    // Output variables MCLAMBDA
+    // Output variables
     emxArray_real_T *afixed;
     emxArray_real_T *sqnorm;
     double Ps;
-    double Qzhat[999];
-    double Z1[999];
+    double *Qzhat;
+    double *Z1;
     double nfixed;
 	double mu;
 
@@ -308,75 +307,17 @@ extern int mclambda_exec(rtk_t *rtk, int n, int m, const double *a, const double
     // Change this size to the value that the application requires.
     type = emxCreateND_char_T(2, *(int (*)[2])&iv1[0]);
 
-    // Format input data
-    //fprintf(f, "NAmb: %d\n", n);
-    //fprintf(f, "Ambiguities\n"); 
-    for (i=0; i<n; i++){ // Building ambiguity vector
-        ahat[i] = a[i];
-        //fprintf(f, "Amb: %f\n", a[i]);
-    }
-
-    //fprintf(f, "Variance-Covariance\n");
-    for (i=0; i<n; i++){ // Building VC ambiguity matrix
-        for (j=0; j<n; j++){
-            Qahat[i + j*n] = Q[i + j*n];
-        }
-        //fprintf(f, "VC: %f\n", Qahat[i]);
-    }
-    /*for (i=0; i<n*n; i++){
-        Qahat[i] = Q[i];
-    }*/ 
-
-    // Obtain options from data input
-    rtk_opt = rtk->opt.mcopt;
-    if (rtk_opt == MCLAMBDA_ILS_SAS){
-        method = 1.0;
-        param = 1.0;
-        value = 10;
-        //fprintf(f, "Method ILS SAS\n");
-    } else if (rtk_opt == MCLAMBDA_ILS_ES){
-        method = 2.0;
-        param = 1.0;
-        value = 10;
-        //fprintf(f, "Method ILS ES\n");
-    } else if (rtk_opt == MCLAMBDA_IRM){
-        method = 3.0;
-        param = 0.0;
-        value = 0;
-        //fprintf(f, "Method IRM\n");
-    } else if (rtk_opt == MCLAMBDA_IB){
-        method = 4.0;
-        param = 0.0;
-        value = 0;
-        //fprintf(f, "Method IB\n");
-    } else if (rtk_opt == MCLAMBDA_ILS_PO){
-        method = 5.0;
-        param = 1.0;
-        value = 0.01;
-        //fprintf(f, "Method ILS PO\n");
-    } else if (rtk_opt == MCLAMBDA_ILS_MU){
-        method = 5.0;
-        param = 1.0;
-        value = 0.5;
-        //fprintf(f, "Method ILS MU\n");
-    } else{ 
-        method = 1.0;
-        param = 1.0;
-        value = 10;
-        //fprintf(f, "Method ILS SAS default\n");
-    }
-    
     // Comment uncomment in order to change the method of calculation
-    //type->data[0] = 'P';
-    //type->data[1] = 'O';
+    /*type->data[0] = 'P';
+    type->data[1] = 'O';
     type->data[0] = 'M';
-    //type->data[1] = 'U';
-    //type->data[0] = 'N';
-    //type->data[1] = 'C';
-    //type->data[2] = 'A';
-    //type->data[3] = 'N';
-    //type->data[4] = 'D';
-    //type->data[5] = 'S';
+    type->data[1] = 'U';*/
+    type->data[0] = 'N';
+    type->data[1] = 'C';
+    type->data[2] = 'A';
+    type->data[3] = 'N';
+    type->data[4] = 'D';
+    type->data[5] = 'S';
 
 	emxInitArray_real_T(&afixed, 2);
     emxInitArray_real_T(&sqnorm, 2);
@@ -385,27 +326,24 @@ extern int mclambda_exec(rtk_t *rtk, int n, int m, const double *a, const double
     if (n<=0||m<=0) return -1;
 
     // Execute MCLAMBDA Routine
-    mclambda(n, ahat, Qahat, method, param, type, value, afixed, sqnorm, &Ps, Qzhat, Z1, &nfixed, &mu);
+    //mclambda(12, ahat, Qahat, method, param, type, value, afixed, sqnorm, &Ps, Qzhat, Z1, &nfixed, &mu);
     
-    //free(L); free(D); free(Z); free(z); free(E);
-
-    // Preparing data to return (Print in file only for tests)
-    if (method==3.0 || method==4.0){
-        s[0] = 0;
-        s[1] = 0;
-    } else{
-        s = sqnorm->data;
+    L=zeros(n,n); D=mat(n,1); Z=eye(n); z=mat(n,1); E=mat(n,m);
+    
+    /* LD factorization */
+    if (!(info=LD(n,Q,L,D))) {
+        
+        /* lambda reduction */
+        reduction(n,L,D,Z);
+        matmul("TN",n,1,n,1.0,Z,a,0.0,z); /* z=Z'*a */
+        
+        /* mlambda search */
+        if (!(info=search(n,m,L,D,z,E,s))) {
+            
+            info=solve("T",Z,E,n,m,F); /* F=Z'\E */
+        }
     }
-
-    for (i=0; i<n; i++){
-        F[i] = afixed->data[i];
-        //fprintf(f, "SolAmb: %f\n", F[i]);
-    }
-    //fprintf(f, "S1: %f\n", s[0]);
-    //fprintf(f, "S2: %f\n", s[1]);
-    //fclose(f);
-    info = 0;
-
+    free(L); free(D); free(Z); free(z); free(E);
     return info;
 }
 // --------------------------------------------------------------------------

@@ -15,8 +15,8 @@
 *           2015/05/31 1.1 add api lambda_reduction(), lambda_search()
 *-----------------------------------------------------------------------------*/
 #include "rtklib.h"
-#include "mclambda\mclambda.h"
-#include "mclambda\mclambda_emxAPI.h"
+#include "mclambda/mclambda.h"
+#include "mclambda/mclambda_emxAPI.h"
 
 /* constants/macros ----------------------------------------------------------*/
 
@@ -165,8 +165,7 @@ static int search(int n, int m, const double *L, const double *D,
 extern int lambda(int n, int m, const double *a, const double *Q, double *F,
                   double *s)
 {
-    //FILE *f = fopen("file.txt", "w");
-    int info, i;
+    int info;
     double *L,*D,*Z,*z,*E;
     
     if (n<=0||m<=0) return -1;
@@ -186,16 +185,6 @@ extern int lambda(int n, int m, const double *a, const double *Q, double *F,
         }
     }
     free(L); free(D); free(Z); free(z); free(E);
-
-    // Print only for testing
-    /*for (i=0; i<n; i++){
-        fprintf(f, "Amb: %f\n", a[i]);
-        fprintf(f, "SolAmb: %f\n", F[i]);
-    }
-    fprintf(f, "S1: %f\n", s[0]);
-    fprintf(f, "S2: %f\n", s[1]);
-    fclose(f);*/
-
     return info;
 }
 /* lambda reduction ------------------------------------------------------------
@@ -273,113 +262,32 @@ extern int lambda_search(int n, int m, const double *a, const double *Q,
 // --------------------------------------------------------------------------
 //                           MC-LAMBDA RUN FUNCTION
 // --------------------------------------------------------------------------
-extern int mclambda_exec(rtk_t *rtk, int n, int m, const double *a, const double *Q, double *F,
+extern int mclambda_exec(int n, int m, const double *a, const double *Q, double *F,
                   double *s)
 {
 
-    //FILE *f = fopen("file.txt", "w");
-    // Return variable definition
-    int info;
-    int i, j;
-    int rtk_opt;
+    // Definiton of variables
+    double ahat = a;
+    double Qahat = Q;
+    double method = 1.0;
+    double param = 1;
+    emxArray_char_T *type;
+    type = typeFunction(); // Initialize function input argument 'type'.
+    double value = m;
 
-    // Definiton of variables MCLAMBDA
-    double ahat[999]; 
-    double Qahat[999];
-    double method;
-    double param;
-	emxArray_char_T *type;
-    double value;
-
-    // Output variables MCLAMBDA
+    // Output variables
     emxArray_real_T *afixed;
     emxArray_real_T *sqnorm;
     double Ps;
-    double Qzhat[999];
-    double Z1[999];
+    double Qzhat;
+    double Z1;
     double nfixed;
-	double mu;
-
-    // Initialize input argument 'type'.
-    static int iv1[2] = { 2, 2 };
-    int idx0;
-    int idx1;
-    // Set the size of the array.
-    // Change this size to the value that the application requires.
-    type = emxCreateND_char_T(2, *(int (*)[2])&iv1[0]);
-
-    // Format input data
-    //fprintf(f, "NAmb: %d\n", n);
-    //fprintf(f, "Ambiguities\n"); 
-    for (i=0; i<n; i++){ // Building ambiguity vector
-        ahat[i] = a[i];
-        //fprintf(f, "Amb: %f\n", a[i]);
-    }
-
-    //fprintf(f, "Variance-Covariance\n");
-    for (i=0; i<n; i++){ // Building VC ambiguity matrix
-        for (j=0; j<n; j++){
-            Qahat[i + j*n] = Q[i + j*n];
-        }
-        //fprintf(f, "VC: %f\n", Qahat[i]);
-    }
-    /*for (i=0; i<n*n; i++){
-        Qahat[i] = Q[i];
-    }*/ 
-
-    // Obtain options from data input
-    rtk_opt = rtk->opt.mcopt;
-    if (rtk_opt == MCLAMBDA_ILS_SAS){
-        method = 1.0;
-        param = 1.0;
-        value = 10;
-        //fprintf(f, "Method ILS SAS\n");
-    } else if (rtk_opt == MCLAMBDA_ILS_ES){
-        method = 2.0;
-        param = 1.0;
-        value = 10;
-        //fprintf(f, "Method ILS ES\n");
-    } else if (rtk_opt == MCLAMBDA_IRM){
-        method = 3.0;
-        param = 0.0;
-        value = 0;
-        //fprintf(f, "Method IRM\n");
-    } else if (rtk_opt == MCLAMBDA_IB){
-        method = 4.0;
-        param = 0.0;
-        value = 0;
-        //fprintf(f, "Method IB\n");
-    } else if (rtk_opt == MCLAMBDA_ILS_PO){
-        method = 5.0;
-        param = 1.0;
-        value = 0.01;
-        //fprintf(f, "Method ILS PO\n");
-    } else if (rtk_opt == MCLAMBDA_ILS_MU){
-        method = 5.0;
-        param = 1.0;
-        value = 0.5;
-        //fprintf(f, "Method ILS MU\n");
-    } else{ 
-        method = 1.0;
-        param = 1.0;
-        value = 10;
-        //fprintf(f, "Method ILS SAS default\n");
-    }
-    
-    // Comment uncomment in order to change the method of calculation
-    //type->data[0] = 'P';
-    //type->data[1] = 'O';
-    type->data[0] = 'M';
-    //type->data[1] = 'U';
-    //type->data[0] = 'N';
-    //type->data[1] = 'C';
-    //type->data[2] = 'A';
-    //type->data[3] = 'N';
-    //type->data[4] = 'D';
-    //type->data[5] = 'S';
-
-	emxInitArray_real_T(&afixed, 2);
+    double mu;
+    emxInitArray_real_T(&afixed, 2);
     emxInitArray_real_T(&sqnorm, 2);
+
+    int info;
+    double *L,*D,*Z,*z,*E;
 
     // Testing
     if (n<=0||m<=0) return -1;
@@ -387,27 +295,58 @@ extern int mclambda_exec(rtk_t *rtk, int n, int m, const double *a, const double
     // Execute MCLAMBDA Routine
     mclambda(n, ahat, Qahat, method, param, type, value, afixed, sqnorm, &Ps, Qzhat, Z1, &nfixed, &mu);
     
-    //free(L); free(D); free(Z); free(z); free(E);
-
-    // Preparing data to return (Print in file only for tests)
-    if (method==3.0 || method==4.0){
-        s[0] = 0;
-        s[1] = 0;
-    } else{
-        s = sqnorm->data;
+    L=zeros(n,n); D=mat(n,1); Z=eye(n); z=mat(n,1); E=mat(n,m);
+    
+    /* LD factorization */
+    if (!(info=LD(n,Q,L,D))) {
+        
+        /* lambda reduction */
+        reduction(n,L,D,Z);
+        matmul("TN",n,1,n,1.0,Z,a,0.0,z); /* z=Z'*a */
+        
+        /* mlambda search */
+        if (!(info=search(n,m,L,D,z,E,s))) {
+            
+            info=solve("T",Z,E,n,m,F); /* F=Z'\E */
+        }
     }
-
-    for (i=0; i<n; i++){
-        F[i] = afixed->data[i];
-        //fprintf(f, "SolAmb: %f\n", F[i]);
-    }
-    //fprintf(f, "S1: %f\n", s[0]);
-    //fprintf(f, "S2: %f\n", s[1]);
-    //fclose(f);
-    info = 0;
-
+    free(L); free(D); free(Z); free(z); free(E);
     return info;
 }
 // --------------------------------------------------------------------------
 //                         END MC-LAMBDA RUN FUNCTION
+// --------------------------------------------------------------------------
+
+// --------------------------------------------------------------------------
+//                        TYPE FUNCTION (FOR MCLAMBDA)
+// --------------------------------------------------------------------------
+static emxArray_char_T *typeFunction()
+{
+    emxArray_char_T *result;
+    static int iv1[2] = { 2, 2 };
+    int idx0;
+    int idx1;
+
+    // Set the size of the array.
+    // Change this size to the value that the application requires.
+    result = emxCreateND_char_T(2, *(int (*)[2])&iv1[0]);
+
+    // Comment uncomment in order to change the method of calculation
+    /*result->data[0] = 'P';
+    result->data[1] = 'O';
+
+    result->data[0] = 'M';
+    result->data[1] = 'U';*/
+
+    result->data[0] = 'N';
+    result->data[1] = 'C';
+    result->data[2] = 'A';
+    result->data[3] = 'N';
+    result->data[4] = 'D';
+    result->data[5] = 'S';
+
+    return result;
+}
+// --------------------------------------------------------------------------
+//                            END TYPE FUNCTION
 // --------------------------------------------------------------------------
